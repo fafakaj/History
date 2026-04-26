@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_90540d7d6c3d3aac599bd9e7b700c18d {
+                #map_d0cb13ff1faad1d12b73cf23992c16d6 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -35,129 +35,300 @@
                 .leaflet-container { font-size: 1rem; }
             </style>
         
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-dvf/0.3.0/leaflet-dvf.markers.min.js"></script>
 </head>
 <body>
     
     
-            <div class="folium-map" id="map_90540d7d6c3d3aac599bd9e7b700c18d" ></div>
+            <div class="folium-map" id="map_d0cb13ff1faad1d12b73cf23992c16d6" ></div>
         
     
-    <div style="
-        position: fixed;
-        bottom: 30px;
-        left: 30px;
-        width: 280px;
-        background-color: rgba(255, 255, 255, 0.92);
-        border: 2px solid #333;
-        border-radius: 8px;
-        padding: 12px;
-        font-size: 13px;
-        font-family: Georgia, serif;
-        z-index: 9999;
-        box-shadow: 3px 3px 10px rgba(0,0,0,0.3);
-    ">
-        <h4 style="margin: 0 0 8px 0; text-align: center; color: #1a5276;">
-            Карта снабжения Ленинграда
-        </h4>
-        <hr style="margin: 5px 0;">
-        <div><span style="color:#2980b9;">- - -</span> Дорога жизни (лёд)</div>
-        <div><span style="color:#1abc9c;">---</span> Водная навигация</div>
-        <div><span style="color:#27ae60;">---</span> Ж/Д пути снабжения</div>
-        <div><span style="color:#8e44ad;">. . . .</span> Воздушный мост</div>
-        <div><span style="color:#e67e22;">- . -</span> Трубопровод ГСМ</div>
-        <div><span style="color:#f1c40f;">- - -</span> Электрокабель</div>
-        <div><span style="color:#c0392b;">---</span> Дорога Победы (1943)</div>
-        <div><span style="color:#333;">- . . -</span> Линия блокады</div>
-        <div><span style="color:#8B0000;">- - -</span> Оборона Ленинграда</div>
-        <div><span style="color:#6A0DAD;">- - -</span> Доп. маршруты</div>
-        <hr style="margin: 5px 0;">
-        <div style="font-size:11px; color:#555; text-align:center;">
-            Нажимайте на линии и маркеры<br>для подробной информации
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0,
+                   maximum-scale=4.0, user-scalable=yes"/>
+    <style>
+      /* ===== попапы: адаптивная ширина ===== */
+      .leaflet-popup-content {
+          margin: 10px 12px !important;
+          font-family: Georgia, "Times New Roman", serif;
+      }
+      .ll-popup {
+          max-width: 100%;
+          font-size: 13px;
+          line-height: 1.35;
+      }
+      .ll-popup table {
+          width: 100%;
+          table-layout: auto;
+          word-break: break-word;
+      }
+      .ll-popup h2 { font-size: 16px; }
+      .ll-popup h3 { font-size: 15px; }
+      .ll-popup h4 { font-size: 13px; }
+      .ll-popup p, .ll-popup li { font-size: 13px; }
+
+      /* ===== панель слоёв (LayerControl) ===== */
+      .leaflet-control-layers {
+          font-family: Georgia, serif;
+          font-size: 13px;
+          max-height: 70vh;
+          overflow-y: auto;
+      }
+
+      /* ===== легенда ===== */
+      #ll-legend {
+          position: fixed;
+          bottom: 18px;
+          left: 18px;
+          width: 280px;
+          background: rgba(255,255,255,0.94);
+          border: 2px solid #1a5276;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 12.5px;
+          font-family: Georgia, serif;
+          z-index: 9999;
+          box-shadow: 3px 3px 12px rgba(0,0,0,0.25);
+          line-height: 1.45;
+      }
+      #ll-legend h4 {
+          margin: 0 0 6px 0;
+          color: #1a5276;
+          text-align: center;
+          font-size: 14px;
+      }
+      #ll-legend .row { display: flex; align-items: center;
+                        margin: 2px 0; }
+      #ll-legend .swatch {
+          display: inline-block;
+          width: 24px; height: 4px;
+          margin-right: 8px;
+          border-radius: 2px;
+          flex-shrink: 0;
+      }
+      #ll-legend .hint {
+          margin-top: 6px;
+          padding-top: 6px;
+          border-top: 1px dashed #999;
+          font-size: 11px; color: #555; text-align: center;
+      }
+
+      /* кнопка-переключатель легенды */
+      #ll-legend-toggle, #ll-title-toggle {
+          position: fixed;
+          z-index: 10000;
+          background: #1a5276;
+          color: #fff;
+          border: none;
+          border-radius: 6px;
+          padding: 7px 10px;
+          font-family: Georgia, serif;
+          font-size: 13px;
+          cursor: pointer;
+          box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+      }
+      #ll-legend-toggle { bottom: 18px; left: 18px; display: none; }
+      #ll-title-toggle  { top: 10px;    left: 10px; display: none; }
+
+      /* ===== заголовок ===== */
+      #ll-title {
+          position: fixed;
+          top: 10px; left: 10px;
+          background: rgba(26,82,118,0.92);
+          color: #fff;
+          padding: 7px 14px;
+          border-radius: 6px;
+          font-family: Georgia, serif;
+          font-size: 13px;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          max-width: 360px;
+      }
+      #ll-title b { font-size: 14px; }
+      #ll-title small { font-size: 10.5px; opacity: 0.85; }
+      #ll-title .close {
+          float: right;
+          margin-left: 8px;
+          cursor: pointer;
+          opacity: 0.85;
+          font-weight: bold;
+      }
+
+      /* ====== МОБИЛЬНЫЕ УСТРОЙСТВА ====== */
+      @media (max-width: 700px) {
+          .leaflet-popup-content-wrapper {
+              max-width: 92vw !important;
+          }
+          .leaflet-popup-content {
+              max-width: 88vw !important;
+              max-height: 60vh;
+              overflow-y: auto;
+              font-size: 13px;
+          }
+          .ll-popup h2 { font-size: 15px; }
+          .ll-popup h3 { font-size: 14px; }
+          .ll-popup table { font-size: 11.5px; }
+
+          /* по умолчанию скрываем легенду и заголовок,
+             пользователь сам их открывает */
+          #ll-legend { display: none; width: 86vw; max-height: 60vh;
+                       overflow-y: auto; }
+          #ll-title  { display: none; max-width: 86vw; }
+          #ll-legend-toggle { display: block; }
+          #ll-title-toggle  { display: block; }
+
+          .leaflet-control-layers {
+              max-height: 60vh;
+              max-width: 80vw;
+              font-size: 14px;
+          }
+          .leaflet-control-layers-list label {
+              display: block;
+              padding: 4px 0;
+          }
+      }
+
+      /* ====== совсем маленькие экраны ====== */
+      @media (max-width: 380px) {
+          #ll-legend, #ll-title { width: 92vw; max-width: 92vw; }
+      }
+
+      /* кнопки зума крупнее на мобильных */
+      @media (max-width: 700px) {
+          .leaflet-touch .leaflet-bar a {
+              width: 36px; height: 36px;
+              line-height: 36px; font-size: 22px;
+          }
+      }
+    </style>
+
+    <div id="ll-title">
+        <span class="close" onclick="document.getElementById('ll-title')
+              .style.display='none';
+              document.getElementById('ll-title-toggle')
+              .style.display='block';">&times;</span>
+        <b>Снабжение блокадного Ленинграда (1941–1944)</b><br>
+        <small>Интерактивная историческая карта.
+               Тапайте маркеры и линии.</small>
+    </div>
+    <button id="ll-title-toggle"
+            onclick="document.getElementById('ll-title')
+                .style.display='block';
+                this.style.display='none';">
+        Описание
+    </button>
+
+    <div id="ll-legend">
+        <h4>Условные обозначения</h4>
+        <div class="row"><span class="swatch"
+            style="background:#2980b9;"></span>Дорога жизни (лёд)</div>
+        <div class="row"><span class="swatch"
+            style="background:#1abc9c;"></span>Водная навигация</div>
+        <div class="row"><span class="swatch"
+            style="background:#27ae60;"></span>Ж/Д снабжения</div>
+        <div class="row"><span class="swatch"
+            style="background:#e67e22;"></span>Трубопровод ГСМ</div>
+        <div class="row"><span class="swatch"
+            style="background:#f1c40f;"></span>Электрокабель</div>
+        <div class="row"><span class="swatch"
+            style="background:#c0392b;"></span>Дорога Победы (1943)</div>
+        <div class="row"><span class="swatch"
+            style="background:#8B4513;"></span>Аварийный путь (Заборье)</div>
+        <div class="row"><span class="swatch"
+            style="background:#6A0DAD;"></span>Снабжение Ораниенбаума</div>
+        <div class="row"><span class="swatch"
+            style="background:#2c2c2c;"></span>Линия блокады (нем.)</div>
+        <div class="row"><span class="swatch"
+            style="background:#555555;"></span>Линия блокады (финск.)</div>
+        <div class="row"><span class="swatch"
+            style="background:#8B0000;"></span>Городской обвод</div>
+        <div class="row"><span class="swatch"
+            style="background:#A52A2A;"></span>КрасногвардейскийУР (Гатчина)</div>
+        <div class="row"><span class="swatch"
+            style="background:#8B0000;border:1px dashed #800;"></span>КаУР (Карельский)</div>
+        <div class="row"><span class="swatch"
+            style="background:#CD5C5C;"></span>Лужский рубеж</div>
+        <div class="hint">
+            Тапайте маркеры и линии для подробной информации.<br>
+            Слои справа можно включать/выключать.
+            <div style="text-align:right;margin-top:4px;">
+                <a href="javascript:void(0);"
+                   onclick="document.getElementById('ll-legend')
+                     .style.display='none';
+                     document.getElementById('ll-legend-toggle')
+                     .style.display='block';"
+                   style="color:#1a5276;">Скрыть</a>
+            </div>
         </div>
     </div>
-    
-    
-    <div style="
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background-color: rgba(26, 82, 118, 0.90);
-        color: white;
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-family: Georgia, serif;
-        font-size: 13px;
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        max-width: 320px;
-    ">
-        <b>Линии снабжения блокадного Ленинграда (1941-1944)</b><br>
-        <span style="font-size:10px;">Интерактивная историческая карта</span>
-    </div>
+    <button id="ll-legend-toggle"
+            onclick="document.getElementById('ll-legend')
+                .style.display='block';
+                this.style.display='none';">
+        Легенда
+    </button>
     
 </body>
 <script>
     
     
-            var map_90540d7d6c3d3aac599bd9e7b700c18d = L.map(
-                "map_90540d7d6c3d3aac599bd9e7b700c18d",
+            var map_d0cb13ff1faad1d12b73cf23992c16d6 = L.map(
+                "map_d0cb13ff1faad1d12b73cf23992c16d6",
                 {
-                    center: [59.94, 31.0],
+                    center: [59.95, 31.5],
                     crs: L.CRS.EPSG3857,
-                    zoom: 9,
+                    zoom: 8,
                     zoomControl: true,
                     preferCanvas: false,
                 }
             );
-            L.control.scale().addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            L.control.scale().addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
 
             
 
         
     
-            var tile_layer_96199d666b08c7ca923b2c238d062761 = L.tileLayer(
+            var tile_layer_8836f56bf01fad8978100ee998f4ec92 = L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
                 {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e", "detectRetina": false, "maxNativeZoom": 20, "maxZoom": 20, "minZoom": 0, "noWrap": false, "opacity": 1, "subdomains": "abcd", "tms": false}
             );
         
     
-            tile_layer_96199d666b08c7ca923b2c238d062761.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            tile_layer_8836f56bf01fad8978100ee998f4ec92.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_49a5e5c9cde2e14f29663b0b2bd212ee = L.featureGroup(
+            var feature_group_408bf709692ee214a2d540e5cdb7ae1a = L.featureGroup(
                 {}
             );
         
     
-            var marker_c941ec7b247342316d8bfa2a15e496df = L.marker(
+            var marker_821a58dde507fab16060ddd32e503f24 = L.marker(
                 [59.9343, 30.3351],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_946793c926e68aa21bcd065ccb0b323d = L.AwesomeMarkers.icon(
+            var icon_ef83c12a352eaf5d90d699a722d6d0ed = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "home", "iconColor": "white", "markerColor": "red", "prefix": "glyphicon"}
             );
-            marker_c941ec7b247342316d8bfa2a15e496df.setIcon(icon_946793c926e68aa21bcd065ccb0b323d);
+            marker_821a58dde507fab16060ddd32e503f24.setIcon(icon_ef83c12a352eaf5d90d699a722d6d0ed);
         
     
-        var popup_552bfaa555d371ef6889c36797cd7164 = L.popup({"maxWidth": 400});
+        var popup_145ec3df9c54493bfa5a440ea77ef4b8 = L.popup({"maxWidth": 480});
 
         
             
-                var html_ff3fc46f41aa5e2120b0ce2a82f8a448 = $(`<div id="html_ff3fc46f41aa5e2120b0ce2a82f8a448" style="width: 100.0%; height: 100.0%;">             <div style="width:380px; font-family:Georgia, serif;">                 <h3 style="color:#8B0000; margin-bottom:5px;">Ленинград в блокаде</h3>                 <hr style="border:1px solid #8B0000;">                 <p><b>Население на начало блокады:</b> ~2,887,000 чел.</p>                 <p><b>Дата начала блокады:</b> 8 сентября 1941 г.</p>                 <p><b>Дата полного снятия:</b> 27 января 1944 г. (872 дня)</p>                 <p><b>Погибло мирных жителей:</b> ~632,000 — 1,500,000 чел.<br>                 <small>(по разным оценкам; 97% — от голода)</small></p>                 <hr>                 <h4>Нормы хлеба (ноябрь-декабрь 1941):</h4>                 <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px;">                     <tr style="background:#f0e0e0;"><th>Категория</th><th>Норма (г/день)</th></tr>                     <tr><td>Рабочие горячих цехов</td><td>375</td></tr>                     <tr><td>Рабочие</td><td>250</td></tr>                     <tr><td>Служащие</td><td>125</td></tr>                     <tr><td>Иждивенцы и дети</td><td>125</td></tr>                     <tr><td>Войска на передовой</td><td>500</td></tr>                     <tr><td>Тыловые части</td><td>300</td></tr>                 </table>                 <p style="font-size:11px; color:#555;">Хлеб содержал до 50% примесей                  (целлюлоза, жмых, обойная пыль).</p>                 <h4>Эвакуировано из города всего: ~1,750,000 чел.</h4>             </div>             </div>`)[0];
-                popup_552bfaa555d371ef6889c36797cd7164.setContent(html_ff3fc46f41aa5e2120b0ce2a82f8a448);
+                var html_72b68925d69324aa99463e9ec17fcc07 = $(`<div id="html_72b68925d69324aa99463e9ec17fcc07" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#8B0000;margin:0 0 6px 0;">Ленинград в блокаде</h3>         <hr style="border:1px solid #8B0000;margin:4px 0 8px 0;">         <p><b>Население на начало блокады:</b> ок. 2,5 млн жителей         (с пригородами — до 2,9 млн).</p>         <p><b>Начало блокады:</b> 8 сентября 1941 г.</p>         <p><b>Полное снятие:</b> 27 января 1944 г. (872 дня).</p>         <p><b>Жертвы среди мирного населения:</b> по разным оценкам         от ~641 тыс. (Нюрнбергский процесс) до 1+ млн человек;         подавляющее большинство — от голода.</p>         <h4 style="margin:8px 0 4px 0;">Нормы выдачи хлеба         (с 20 ноября 1941 г.):</h4>         <table style="border-collapse:collapse;font-size:12px;width:100%;"                border="1" cellpadding="4">             <tr style="background:#f0e0e0;">                 <th>Категория</th><th>Норма (г/сутки)</th></tr>             <tr><td>Рабочие горячих цехов</td><td>375</td></tr>             <tr><td>Рабочие и ИТР</td><td>250</td></tr>             <tr><td>Служащие</td><td>125</td></tr>             <tr><td>Иждивенцы и дети до 12 лет</td><td>125</td></tr>             <tr><td>Войска первой линии</td><td>500</td></tr>             <tr><td>Тыловые части</td><td>300</td></tr>         </table>         <p style="font-size:11px;color:#555;margin-top:6px;">         Хлеб содержал значительную долю примесей: овсяная и         ржаная мука, льняной жмых, целлюлоза, обойная пыль,         солод. С 25 декабря 1941 г. нормы начали повышать.</p>         <p><b>Эвакуировано из города (всего за 1941–1943):</b>         ок. 1,3–1,7 млн человек.</p>         </div></div>`)[0];
+                popup_145ec3df9c54493bfa5a440ea77ef4b8.setContent(html_72b68925d69324aa99463e9ec17fcc07);
             
         
 
-        marker_c941ec7b247342316d8bfa2a15e496df.bindPopup(popup_552bfaa555d371ef6889c36797cd7164)
+        marker_821a58dde507fab16060ddd32e503f24.bindPopup(popup_145ec3df9c54493bfa5a440ea77ef4b8)
         ;
 
         
     
     
-            marker_c941ec7b247342316d8bfa2a15e496df.bindTooltip(
+            marker_821a58dde507fab16060ddd32e503f24.bindTooltip(
                 `<div>
                      Ленинград (осаждённый)
                  </div>`,
@@ -165,314 +336,209 @@
             );
         
     
-            var marker_7273a60885217ffec6271ba970b950a9 = L.marker(
-                [60.0158, 30.5222],
+            var marker_1c656e2ae9b2c18cd891de1e71c00ecb = L.marker(
+                [59.9486, 31.0344],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_658fe308eea4d7c58ed5756ca29d12e8 = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "arrow-right", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
-            );
-            marker_7273a60885217ffec6271ba970b950a9.setIcon(icon_658fe308eea4d7c58ed5756ca29d12e8);
-        
-    
-        var popup_fc9fe2dd52a5c083d83710361410b3a0 = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_443391b8ac85e2955dc03ff79f7c5ea2 = $(`<div id="html_443391b8ac85e2955dc03ff79f7c5ea2" style="width: 100.0%; height: 100.0%;">             <div style="width:340px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Коккорево — начало Дороги жизни</h3>                 <hr>                 <p>Отправной пункт ледовой трассы на западном берегу Ладожского озера.</p>                 <p><b>Здесь располагались:</b></p>                 <ul>                     <li>Перевалочные базы</li>                     <li>Склады для грузов, прибывших по льду</li>                     <li>Пункты обогрева эвакуируемых</li>                     <li>Зенитные батареи ПВО</li>                 </ul>                 <p>Грузы далее шли по ж/д ветке Ириновской линии в Ленинград.</p>             </div>             </div>`)[0];
-                popup_fc9fe2dd52a5c083d83710361410b3a0.setContent(html_443391b8ac85e2955dc03ff79f7c5ea2);
-            
-        
-
-        marker_7273a60885217ffec6271ba970b950a9.bindPopup(popup_fc9fe2dd52a5c083d83710361410b3a0)
-        ;
-
-        
-    
-    
-            marker_7273a60885217ffec6271ba970b950a9.bindTooltip(
-                `<div>
-                     Коккорево (западный берег)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_f35dd95feadfb4ae4eecc7a095f93543 = L.marker(
-                [60.04, 31.28],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_2aabe17bb8cf9824664963778c46fa7a = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "archive", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
-            );
-            marker_f35dd95feadfb4ae4eecc7a095f93543.setIcon(icon_2aabe17bb8cf9824664963778c46fa7a);
-        
-    
-        var popup_5e6176df46d35cf4f571a47f58926f21 = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_d1a95352c02fc42bc3320495c7372d8d = $(`<div id="html_d1a95352c02fc42bc3320495c7372d8d" style="width: 100.0%; height: 100.0%;">             <div style="width:340px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Кобона — главная база снабжения</h3>                 <hr>                 <p>Ключевой пункт на восточном (неоккупированном) берегу Ладоги.</p>                 <p><b>Функции:</b></p>                 <ul>                     <li>Приём грузов с Большой земли по ж/д</li>                     <li>Загрузка автомашин и саней для переправы по льду</li>                     <li>Приём эвакуированных жителей из Ленинграда</li>                     <li>Порт для барж (летняя навигация)</li>                 </ul>                 <p><b>Пропускная способность порта:</b> до 6,000 т/сутки (лето 1942)</p>             </div>             </div>`)[0];
-                popup_5e6176df46d35cf4f571a47f58926f21.setContent(html_d1a95352c02fc42bc3320495c7372d8d);
-            
-        
-
-        marker_f35dd95feadfb4ae4eecc7a095f93543.bindPopup(popup_5e6176df46d35cf4f571a47f58926f21)
-        ;
-
-        
-    
-    
-            marker_f35dd95feadfb4ae4eecc7a095f93543.bindTooltip(
-                `<div>
-                     Кобона (восточный берег)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_213851cdab79d2840c91a5be2e4ee75c = L.marker(
-                [60.1, 32.3],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_071aefc82f0392d19320faa6ee38aad8 = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "anchor", "iconColor": "white", "markerColor": "darkblue", "prefix": "glyphicon"}
-            );
-            marker_213851cdab79d2840c91a5be2e4ee75c.setIcon(icon_071aefc82f0392d19320faa6ee38aad8);
-        
-    
-        var popup_32c3f2924958eb27ed556984289464ae = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_d76db13471230e3666a46eeecc0d1a90 = $(`<div id="html_d76db13471230e3666a46eeecc0d1a90" style="width: 100.0%; height: 100.0%;">             <div style="width:320px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Новая Ладога — база Ладожской флотилии</h3>                 <hr>                 <p>Основная база Ладожской военной флотилии.</p>                 <p><b>Здесь базировались:</b></p>                 <ul>                     <li>Канонерские лодки</li>                     <li>Сторожевые катера</li>                     <li>Тральщики</li>                     <li>Транспортные суда</li>                 </ul>                 <p>Флотилия обеспечивала прикрытие водных коммуникаций.</p>             </div>             </div>`)[0];
-                popup_32c3f2924958eb27ed556984289464ae.setContent(html_d76db13471230e3666a46eeecc0d1a90);
-            
-        
-
-        marker_213851cdab79d2840c91a5be2e4ee75c.bindPopup(popup_32c3f2924958eb27ed556984289464ae)
-        ;
-
-        
-    
-    
-            marker_213851cdab79d2840c91a5be2e4ee75c.bindTooltip(
-                `<div>
-                     Новая Ладога
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_bcf7b6d095af1d2f11cc0ac86eb2271d = L.marker(
-                [60.03, 30.57],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_3c8a6bdad64fad094ecc47b78054eb0d = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "anchor", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
-            );
-            marker_bcf7b6d095af1d2f11cc0ac86eb2271d.setIcon(icon_3c8a6bdad64fad094ecc47b78054eb0d);
-        
-    
-        var popup_dd5baba8cc34db996615cde27cd80072 = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_75c1745d5dc7f2fa5a66be655e5d9b9b = $(`<div id="html_75c1745d5dc7f2fa5a66be655e5d9b9b" style="width: 100.0%; height: 100.0%;">             <div style="width:350px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Осиновец — порт Дороги жизни</h3>                 <hr>                 <p>Порт на западном берегу Ладоги, связанный с Ленинградом                  Ириновской железнодорожной веткой (55 км).</p>                 <p><b>Навигация 1942:</b></p>                 <ul>                     <li>Принято ~790,000 т грузов</li>                     <li>Эвакуировано ~540,000 человек</li>                     <li>Работали баржи, буксиры, тендеры</li>                 </ul>                 <p>Порт регулярно подвергался бомбардировкам люфтваффе.</p>             </div>             </div>`)[0];
-                popup_dd5baba8cc34db996615cde27cd80072.setContent(html_75c1745d5dc7f2fa5a66be655e5d9b9b);
-            
-        
-
-        marker_bcf7b6d095af1d2f11cc0ac86eb2271d.bindPopup(popup_dd5baba8cc34db996615cde27cd80072)
-        ;
-
-        
-    
-    
-            marker_bcf7b6d095af1d2f11cc0ac86eb2271d.bindTooltip(
-                `<div>
-                     Осиновец (порт)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_c3201fd52010efc9cb939723650ff271 = L.marker(
-                [59.645, 33.51],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_6a21b2f8e27fae618e4291ebcbb7f961 = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "exclamation-sign", "iconColor": "white", "markerColor": "orange", "prefix": "glyphicon"}
-            );
-            marker_c3201fd52010efc9cb939723650ff271.setIcon(icon_6a21b2f8e27fae618e4291ebcbb7f961);
-        
-    
-        var popup_e43a381cc16f1b267b25a9509a609cbc = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_b8f2edee0602a2bd93bf5e28ddd91154 = $(`<div id="html_b8f2edee0602a2bd93bf5e28ddd91154" style="width: 100.0%; height: 100.0%;">             <div style="width:340px; font-family:Georgia, serif;">                 <h3 style="color:#8B0000;">Тихвин — критический узел</h3>                 <hr>                 <p><b>8 ноября 1941:</b> Тихвин захвачен немцами.</p>                 <p>Это перерезало последнюю ж/д ветку к Ладоге,                  что резко ухудшило снабжение.</p>                 <p><b>9 декабря 1941:</b> Тихвин освобождён в ходе                  Тихвинской наступательной операции.</p>                 <p>Освобождение Тихвина восстановило путь снабжения                  и позволило увеличить поставки по Дороге жизни.</p>             </div>             </div>`)[0];
-                popup_e43a381cc16f1b267b25a9509a609cbc.setContent(html_b8f2edee0602a2bd93bf5e28ddd91154);
-            
-        
-
-        marker_c3201fd52010efc9cb939723650ff271.bindPopup(popup_e43a381cc16f1b267b25a9509a609cbc)
-        ;
-
-        
-    
-    
-            marker_c3201fd52010efc9cb939723650ff271.bindTooltip(
-                `<div>
-                     Тихвин
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_f4a6b4ef12c403e9295741d7ee248cff = L.marker(
-                [59.926, 32.338],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_8e16acdb79332d4763f4bb17ae1cf4d1 = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
-            );
-            marker_f4a6b4ef12c403e9295741d7ee248cff.setIcon(icon_8e16acdb79332d4763f4bb17ae1cf4d1);
-        
-    
-        var popup_18bebb84cd0b9f82b1c97a33df48e305 = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_4b318d6f460395c3408d5f473f6852b4 = $(`<div id="html_4b318d6f460395c3408d5f473f6852b4" style="width: 100.0%; height: 100.0%;">             <div style="width:320px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Волховстрой — ж/д узел</h3>                 <hr>                 <p>Крупный железнодорожный узел на Большой земле.</p>                 <p>Грузы со всей страны прибывали сюда и далее                  перенаправлялись к пристаням Ладоги (Кобона, Лаврово).</p>                 <p><b>Электроснабжение:</b> В сентябре 1942 г. по дну Ладоги                  был проложен электрокабель от Волховской ГЭС                  в Ленинград (длина ~23 км).</p>             </div>             </div>`)[0];
-                popup_18bebb84cd0b9f82b1c97a33df48e305.setContent(html_4b318d6f460395c3408d5f473f6852b4);
-            
-        
-
-        marker_f4a6b4ef12c403e9295741d7ee248cff.bindPopup(popup_18bebb84cd0b9f82b1c97a33df48e305)
-        ;
-
-        
-    
-    
-            marker_f4a6b4ef12c403e9295741d7ee248cff.bindTooltip(
-                `<div>
-                     Волховстрой
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_fdf71d434767fdda8c784b5959a3ddc2 = L.marker(
-                [59.944, 31.033],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_36729e04cee9f2122c86a3d8f7c4d445 = L.AwesomeMarkers.icon(
+            var icon_902334bdab5a273f87494a670afcf894 = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "lock", "iconColor": "white", "markerColor": "darkred", "prefix": "glyphicon"}
             );
-            marker_fdf71d434767fdda8c784b5959a3ddc2.setIcon(icon_36729e04cee9f2122c86a3d8f7c4d445);
+            marker_1c656e2ae9b2c18cd891de1e71c00ecb.setIcon(icon_902334bdab5a273f87494a670afcf894);
         
     
-        var popup_c496282b829495bf4f1b243f05d40a38 = L.popup({"maxWidth": 400});
+        var popup_ed31e2ffd44ca25a0052ae83f7173c53 = L.popup({"maxWidth": 480});
 
         
             
-                var html_992a419519f6623cd4ee0890967cb8a4 = $(`<div id="html_992a419519f6623cd4ee0890967cb8a4" style="width: 100.0%; height: 100.0%;">             <div style="width:340px; font-family:Georgia, serif;">                 <h3 style="color:#8B0000;">Шлиссельбург</h3>                 <hr>                 <p><b>8 сентября 1941:</b> захвачен немцами —                  кольцо блокады замкнулось.</p>                 <p><b>18 января 1943:</b> освобождён в ходе операции «Искра».</p>                 <p>После освобождения через коридор (8-11 км шириной)                  была проложена ж/д ветка «Дорога Победы»                  (построена за 17 дней!).</p>             </div>             </div>`)[0];
-                popup_c496282b829495bf4f1b243f05d40a38.setContent(html_992a419519f6623cd4ee0890967cb8a4);
+                var html_bf29fb330456074f00ef6c8350d09eab = $(`<div id="html_bf29fb330456074f00ef6c8350d09eab" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#8B0000;margin:0 0 6px 0;">Шлиссельбург</h3>         <hr><p><b>8 сентября 1941:</b> захвачен 20-й моторизованной         дивизией вермахта — кольцо сухопутной блокады замкнулось.</p>         <p><b>18 января 1943:</b> освобождён в ходе операции «Искра»         войсками Ленинградского и Волховского фронтов.</p>         <p>После прорыва через узкий «коридор» (8–11 км)         была построена «Дорога Победы» — ж/д ветка         Шлиссельбург — Поляны.</p>         </div></div>`)[0];
+                popup_ed31e2ffd44ca25a0052ae83f7173c53.setContent(html_bf29fb330456074f00ef6c8350d09eab);
             
         
 
-        marker_fdf71d434767fdda8c784b5959a3ddc2.bindPopup(popup_c496282b829495bf4f1b243f05d40a38)
+        marker_1c656e2ae9b2c18cd891de1e71c00ecb.bindPopup(popup_ed31e2ffd44ca25a0052ae83f7173c53)
         ;
 
         
     
     
-            marker_fdf71d434767fdda8c784b5959a3ddc2.bindTooltip(
+            marker_1c656e2ae9b2c18cd891de1e71c00ecb.bindTooltip(
                 `<div>
-                     Шлиссельбург (оккупирован)
+                     Шлиссельбург (оккупирован 1941–1943)
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var marker_c7ca2f898b3e2644bff6b9269c035bbd = L.marker(
-                [59.2205, 39.8918],
+            var marker_917f1424e31934d3a7f1b1509ddc900f = L.marker(
+                [59.7457, 31.0608],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_397614c1acc9a59806f6cbc6c260097d = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            var icon_4495c5c1b7eb7fa2c9ae1b1f37a836b8 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "lock", "iconColor": "white", "markerColor": "darkred", "prefix": "glyphicon"}
             );
-            marker_c7ca2f898b3e2644bff6b9269c035bbd.setIcon(icon_397614c1acc9a59806f6cbc6c260097d);
+            marker_917f1424e31934d3a7f1b1509ddc900f.setIcon(icon_4495c5c1b7eb7fa2c9ae1b1f37a836b8);
         
     
-        var popup_ac6058872ef315a1703fa2d210fed72c = L.popup({"maxWidth": 400});
+        var popup_0475b7fc75303e5c5d9fa98b30bd352d = L.popup({"maxWidth": 480});
 
         
             
-                var html_920e6625fe04f7f1fb849f7a9b5b22e6 = $(`<div id="html_920e6625fe04f7f1fb849f7a9b5b22e6" style="width: 100.0%; height: 100.0%;">             <div style="width:300px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Вологда</h3>                 <hr>                 <p>Крупнейший тыловой ж/д узел, через который шло                  снабжение Ленинградского фронта.</p>                 <p>Грузы из Москвы, Урала, Сибири направлялись                  через Вологду - Череповец - Тихвин - Волховстрой - Ладога.</p>             </div>             </div>`)[0];
-                popup_ac6058872ef315a1703fa2d210fed72c.setContent(html_920e6625fe04f7f1fb849f7a9b5b22e6);
+                var html_3eb180907a218a66f77b48bdf2f924d7 = $(`<div id="html_3eb180907a218a66f77b48bdf2f924d7" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#8B0000;margin:0 0 6px 0;">Мга — потерянный         ж/д узел</h3><hr>         <p><b>30 августа 1941:</b> Мга захвачена немцами.</p>         <p>Потеря этого ж/д узла перерезала последнюю сухопутную         железнодорожную связь Ленинграда с остальной страной.</p>         <p>Освобождена 21 января 1944 г. в ходе         Ленинградско-Новгородской операции.</p>         </div></div>`)[0];
+                popup_0475b7fc75303e5c5d9fa98b30bd352d.setContent(html_3eb180907a218a66f77b48bdf2f924d7);
             
         
 
-        marker_c7ca2f898b3e2644bff6b9269c035bbd.bindPopup(popup_ac6058872ef315a1703fa2d210fed72c)
+        marker_917f1424e31934d3a7f1b1509ddc900f.bindPopup(popup_0475b7fc75303e5c5d9fa98b30bd352d)
         ;
 
         
     
     
-            marker_c7ca2f898b3e2644bff6b9269c035bbd.bindTooltip(
+            marker_917f1424e31934d3a7f1b1509ddc900f.bindTooltip(
                 `<div>
-                     Вологда — ж/д узел тыла
+                     Мга (оккупирована 1941–1944)
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var marker_21488719b6dc4a6c1b66fc3c87d58468 = L.marker(
-                [60.02, 31.45],
+            var marker_2e63ae557f6abbd1e3d7724fa964f7a3 = L.marker(
+                [60.1142, 31.0808],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_0bcf8c3147173fc6664cbc47874ee4a7 = L.AwesomeMarkers.icon(
+            var icon_dbe625ba5b0fa7563f91f733f81aeff1 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "anchor", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_2e63ae557f6abbd1e3d7724fa964f7a3.setIcon(icon_dbe625ba5b0fa7563f91f733f81aeff1);
+        
+    
+        var popup_a82bf63a5000dd0d1f851a7aba448c9b = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_71f5051e1b00d5e8895db3109229cdb5 = $(`<div id="html_71f5051e1b00d5e8895db3109229cdb5" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Осиновец —         главный порт на западном берегу Ладоги</h3><hr>         <p>Принимал суда из Кобоны и Новой Ладоги. Связан с Ленинградом         Ириновской ж/д веткой (~55 км через Борисову Гриву —         Ваганово — Ржевку).</p>         <p><b>Навигация 1942:</b></p>         <ul style="margin:4px 0;padding-left:18px;">             <li>Принято ~790 тыс. т грузов</li>             <li>Эвакуировано ~540 тыс. человек</li>             <li>Работали баржи, буксиры, тендеры, КЛ</li>         </ul>         <p>Порт регулярно бомбила немецкая авиация —         для его прикрытия действовал отдельный район ПВО.</p>         </div></div>`)[0];
+                popup_a82bf63a5000dd0d1f851a7aba448c9b.setContent(html_71f5051e1b00d5e8895db3109229cdb5);
+            
+        
+
+        marker_2e63ae557f6abbd1e3d7724fa964f7a3.bindPopup(popup_a82bf63a5000dd0d1f851a7aba448c9b)
+        ;
+
+        
+    
+    
+            marker_2e63ae557f6abbd1e3d7724fa964f7a3.bindTooltip(
+                `<div>
+                     Осиновец (порт Дороги жизни)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_67a38e5270ef736922b2fb542fed0819 = L.marker(
+                [60.0944, 31.0867],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_b2a354ca25f9c18ccfc8fdd01129c836 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "arrow-right", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_67a38e5270ef736922b2fb542fed0819.setIcon(icon_b2a354ca25f9c18ccfc8fdd01129c836);
+        
+    
+        var popup_2acc6c095a6ad29caa50526fceec0a9f = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_11ba9c3191b9d68a06b036fd85c45448 = $(`<div id="html_11ba9c3191b9d68a06b036fd85c45448" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Коккорево</h3><hr>         <p>Деревня на западном берегу Ладожского озера, отправной         пункт ледовой трассы зимой 1941–1942 гг.</p>         <p>Здесь располагались:</p>         <ul style="margin:4px 0;padding-left:18px;">             <li>Перевалочные базы и склады</li>             <li>Пункты обогрева для эвакуируемых</li>             <li>Регулировочные посты ВАД-101</li>             <li>Зенитные батареи ПВО</li>         </ul>         </div></div>`)[0];
+                popup_2acc6c095a6ad29caa50526fceec0a9f.setContent(html_11ba9c3191b9d68a06b036fd85c45448);
+            
+        
+
+        marker_67a38e5270ef736922b2fb542fed0819.bindPopup(popup_2acc6c095a6ad29caa50526fceec0a9f)
+        ;
+
+        
+    
+    
+            marker_67a38e5270ef736922b2fb542fed0819.bindTooltip(
+                `<div>
+                     Коккорево (начало ледовой трассы)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_ff2d30b622f30ba42b40ff334012686c = L.marker(
+                [60.0181, 31.9714],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_963e1073da7b4d051860e29f6c27899f = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "archive", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
             );
-            marker_21488719b6dc4a6c1b66fc3c87d58468.setIcon(icon_0bcf8c3147173fc6664cbc47874ee4a7);
+            marker_ff2d30b622f30ba42b40ff334012686c.setIcon(icon_963e1073da7b4d051860e29f6c27899f);
         
     
-        var popup_34c8620a32dc379341dedf84c161f7d2 = L.popup({"maxWidth": 400});
+        var popup_c479839966ebb56798604d06aa712399 = L.popup({"maxWidth": 480});
 
         
             
-                var html_3b704ddf4ad3745b46162f8830e71a01 = $(`<div id="html_3b704ddf4ad3745b46162f8830e71a01" style="width: 100.0%; height: 100.0%;">             <div style="width:300px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Лаврово — перевалочная база</h3>                 <hr>                 <p>Дополнительный пункт погрузки на восточном берегу Ладоги.</p>                 <p>Использовался для разгрузки основного порта Кобона,                  особенно при пиковых нагрузках навигации 1942 г.</p>             </div>             </div>`)[0];
-                popup_34c8620a32dc379341dedf84c161f7d2.setContent(html_3b704ddf4ad3745b46162f8830e71a01);
+                var html_018f48f63290af6b809b0ecfdeddc5ad = $(`<div id="html_018f48f63290af6b809b0ecfdeddc5ad" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Кобона —         главная перевалочная база</h3><hr>         <p>Ключевой пункт на восточном (неоккупированном)         берегу Ладоги. Здесь к зиме 1941–1942 г. была построена         ж/д ветка от ст. Войбокало (~35 км), что позволило         принимать составы непосредственно в порту.</p>         <p><b>Функции:</b></p>         <ul style="margin:4px 0;padding-left:18px;">             <li>Приём грузов с Большой земли (ж/д)</li>             <li>Загрузка автомашин зимой и судов летом</li>             <li>Приём эвакуированных из Ленинграда</li>             <li>Госпиталь и пункты питания эвакуируемых</li>         </ul>         </div></div>`)[0];
+                popup_c479839966ebb56798604d06aa712399.setContent(html_018f48f63290af6b809b0ecfdeddc5ad);
             
         
 
-        marker_21488719b6dc4a6c1b66fc3c87d58468.bindPopup(popup_34c8620a32dc379341dedf84c161f7d2)
+        marker_ff2d30b622f30ba42b40ff334012686c.bindPopup(popup_c479839966ebb56798604d06aa712399)
         ;
 
         
     
     
-            marker_21488719b6dc4a6c1b66fc3c87d58468.bindTooltip(
+            marker_ff2d30b622f30ba42b40ff334012686c.bindTooltip(
+                `<div>
+                     Кобона (главная база на восточном берегу)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_d8209cf3114b217d6b450264b23ecb95 = L.marker(
+                [60.0303, 32.0522],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_8057e6c9caa85cdd5affe02bb8a9f7ee = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "archive", "iconColor": "white", "markerColor": "blue", "prefix": "glyphicon"}
+            );
+            marker_d8209cf3114b217d6b450264b23ecb95.setIcon(icon_8057e6c9caa85cdd5affe02bb8a9f7ee);
+        
+    
+        var popup_d10341aeebfb3cbf7d0ed95842d2ee71 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_4a21510d877ecfc16ea7cb7cb0a8b17c = $(`<div id="html_4a21510d877ecfc16ea7cb7cb0a8b17c" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Лаврово</h3><hr>         <p>Пристань на восточном берегу Ладоги, восточнее Кобоны.         Использовалась как дополнительная перевалочная база         в навигацию 1942 г. при пиковых нагрузках на Кобону.</p>         </div></div>`)[0];
+                popup_d10341aeebfb3cbf7d0ed95842d2ee71.setContent(html_4a21510d877ecfc16ea7cb7cb0a8b17c);
+            
+        
+
+        marker_d8209cf3114b217d6b450264b23ecb95.bindPopup(popup_d10341aeebfb3cbf7d0ed95842d2ee71)
+        ;
+
+        
+    
+    
+            marker_d8209cf3114b217d6b450264b23ecb95.bindTooltip(
                 `<div>
                      Лаврово
                  </div>`,
@@ -480,34 +546,209 @@
             );
         
     
-            var marker_7d63bd091da755a691a3c86b18f81833 = L.marker(
-                [59.13, 37.9],
+            var marker_592bf95e3ddd255d4bf40d78021e6a87 = L.marker(
+                [59.9111, 32.0306],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_2e7f808c349ffd47af4d6074510291c3 = L.AwesomeMarkers.icon(
+            var icon_c505075899b13057ac9b28cc711be4a7 = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
             );
-            marker_7d63bd091da755a691a3c86b18f81833.setIcon(icon_2e7f808c349ffd47af4d6074510291c3);
+            marker_592bf95e3ddd255d4bf40d78021e6a87.setIcon(icon_c505075899b13057ac9b28cc711be4a7);
         
     
-        var popup_192b24378111063aa0acecd51f479a7d = L.popup({"maxWidth": 400});
+        var popup_31bc7c171c66702ef04c892d63b72316 = L.popup({"maxWidth": 480});
 
         
             
-                var html_4d952b1d05b6586f72c952b399133314 = $(`<div id="html_4d952b1d05b6586f72c952b399133314" style="width: 100.0%; height: 100.0%;">             <div style="width:300px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Череповец — транзитный узел</h3>                 <hr>                 <p>Промежуточный ж/д узел на маршруте Вологда - Тихвин.</p>                 <p>Через Череповец проходили эшелоны с продовольствием,                  вооружением и топливом для Ленинградского фронта.</p>             </div>             </div>`)[0];
-                popup_192b24378111063aa0acecd51f479a7d.setContent(html_4d952b1d05b6586f72c952b399133314);
+                var html_4db72d2cc8d04510bc3581197685e55e = $(`<div id="html_4db72d2cc8d04510bc3581197685e55e" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#27ae60;margin:0 0 6px 0;">Войбокало</h3><hr>         <p>Станция Северной (Октябрьской) ж/д. Зимой 1941–1942 гг.         от неё была проложена железнодорожная ветка         Войбокало — Кобона — Коса (~35 км), что радикально         сократило плечо подвоза к Ладоге.</p>         <p>Строительство ветки шло с декабря 1941 г.;         регулярное движение — с февраля 1942 г.</p>         </div></div>`)[0];
+                popup_31bc7c171c66702ef04c892d63b72316.setContent(html_4db72d2cc8d04510bc3581197685e55e);
             
         
 
-        marker_7d63bd091da755a691a3c86b18f81833.bindPopup(popup_192b24378111063aa0acecd51f479a7d)
+        marker_592bf95e3ddd255d4bf40d78021e6a87.bindPopup(popup_31bc7c171c66702ef04c892d63b72316)
         ;
 
         
     
     
-            marker_7d63bd091da755a691a3c86b18f81833.bindTooltip(
+            marker_592bf95e3ddd255d4bf40d78021e6a87.bindTooltip(
+                `<div>
+                     Войбокало (ж/д узел)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_39de10a15a1f2156ad493528f0405ded = L.marker(
+                [60.1059, 32.3175],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_5a626c2a39a06abb14e2ab0906c98686 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "anchor", "iconColor": "white", "markerColor": "darkblue", "prefix": "glyphicon"}
+            );
+            marker_39de10a15a1f2156ad493528f0405ded.setIcon(icon_5a626c2a39a06abb14e2ab0906c98686);
+        
+    
+        var popup_67cad090baad0756157b8e754384f645 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_cd7c40a59e885b2be315905121a3562a = $(`<div id="html_cd7c40a59e885b2be315905121a3562a" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Новая Ладога —         база Ладожской военной флотилии</h3><hr>         <p>Основная стоянка кораблей и судов:</p>         <ul style="margin:4px 0;padding-left:18px;">             <li>Канонерские лодки</li>             <li>Сторожевые катера и тральщики</li>             <li>Транспортные суда</li>         </ul>         <p>Флотилия обеспечивала прикрытие водных коммуникаций,         а также участвовала в десантных операциях и борьбе         с немецко-итальянскими и финскими катерами на Ладоге.</p>         </div></div>`)[0];
+                popup_67cad090baad0756157b8e754384f645.setContent(html_cd7c40a59e885b2be315905121a3562a);
+            
+        
+
+        marker_39de10a15a1f2156ad493528f0405ded.bindPopup(popup_67cad090baad0756157b8e754384f645)
+        ;
+
+        
+    
+    
+            marker_39de10a15a1f2156ad493528f0405ded.bindTooltip(
+                `<div>
+                     Новая Ладога (база Ладожской флотилии)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_23eb32e3cf68475df1775ab65483b327 = L.marker(
+                [59.9258, 32.3375],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_3e5ba60e1b436b3952b5afeeb6a76719 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_23eb32e3cf68475df1775ab65483b327.setIcon(icon_3e5ba60e1b436b3952b5afeeb6a76719);
+        
+    
+        var popup_bdbde3528c203930aa526116f6f8fe12 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_119570210ee1cf40c2be9795050186f2 = $(`<div id="html_119570210ee1cf40c2be9795050186f2" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#27ae60;margin:0 0 6px 0;">Волхов         (Волховстрой) — крупный ж/д и энергетический узел</h3><hr>         <p>Через Волховстрой шёл основной поток грузов с Большой         земли к пристаням Ладоги (Новая Ладога, Кобона, Лаврово).</p>         <p><b>Волховская ГЭС</b> — старейшая ГЭС России (1926).         Осенью 1941 г. часть оборудования была эвакуирована;         восстановлена и в сентябре 1942 г. дала ток в Ленинград         по подводному кабелю.</p>         </div></div>`)[0];
+                popup_bdbde3528c203930aa526116f6f8fe12.setContent(html_119570210ee1cf40c2be9795050186f2);
+            
+        
+
+        marker_23eb32e3cf68475df1775ab65483b327.bindPopup(popup_bdbde3528c203930aa526116f6f8fe12)
+        ;
+
+        
+    
+    
+            marker_23eb32e3cf68475df1775ab65483b327.bindTooltip(
+                `<div>
+                     Волхов (Волховстрой)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_9a5ebaca37ce5e38571cecaa75ce5ca2 = L.marker(
+                [59.6447, 33.5275],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_95b373aeab0c37787ba6c4d31e146e82 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "exclamation-sign", "iconColor": "white", "markerColor": "orange", "prefix": "glyphicon"}
+            );
+            marker_9a5ebaca37ce5e38571cecaa75ce5ca2.setIcon(icon_95b373aeab0c37787ba6c4d31e146e82);
+        
+    
+        var popup_bbaba66052cff475ffb6e25560a351ca = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_dadca2371245615a3006a47523677272 = $(`<div id="html_dadca2371245615a3006a47523677272" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#8B0000;margin:0 0 6px 0;">Тихвин —         критический узел</h3><hr>         <p><b>8 ноября 1941:</b> Тихвин захвачен XXXIX моторизованным         корпусом вермахта. Это перерезало последнюю ж/д ветку         к пристаням Ладоги, и снабжение резко ухудшилось.</p>         <p><b>9 декабря 1941:</b> освобождён войсками 4-й армии         в ходе Тихвинской наступательной операции.</p>         <p>Освобождение Тихвина и восстановление ж/д позволило         многократно увеличить поставки по Дороге жизни.</p>         </div></div>`)[0];
+                popup_bbaba66052cff475ffb6e25560a351ca.setContent(html_dadca2371245615a3006a47523677272);
+            
+        
+
+        marker_9a5ebaca37ce5e38571cecaa75ce5ca2.bindPopup(popup_bbaba66052cff475ffb6e25560a351ca)
+        ;
+
+        
+    
+    
+            marker_9a5ebaca37ce5e38571cecaa75ce5ca2.bindTooltip(
+                `<div>
+                     Тихвин
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_fac50af08599f36037b78360b9cc1b2b = L.marker(
+                [59.6086, 33.8953],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_23def5b805f76c62483284ef281d948f = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "warning-sign", "iconColor": "white", "markerColor": "orange", "prefix": "glyphicon"}
+            );
+            marker_fac50af08599f36037b78360b9cc1b2b.setIcon(icon_23def5b805f76c62483284ef281d948f);
+        
+    
+        var popup_1fea10804ffa5df3857b63a906c264ff = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_e5e3e6e39f1cdfd5a60dba7c3832b05b = $(`<div id="html_e5e3e6e39f1cdfd5a60dba7c3832b05b" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#8B4513;margin:0 0 6px 0;">Заборье —         аварийная перевалочная база</h3><hr>         <p>После захвата Тихвина (8 ноября 1941) грузы шли         от ст. Заборье по только что прорубленной грунтовой         дороге через леса и болота — около 308 км         (Заборье — Серебрянская — Новая Ладога).</p>         <p>Дорога ВАД-102 строилась силами военных и местного         населения. Её пропускная способность — лишь         несколько сотен тонн в сутки.</p>         <p>После освобождения Тихвина (9 декабря 1941) и         восстановления ж/д (начало января 1942) маршрут         был выведен из эксплуатации.</p>         </div></div>`)[0];
+                popup_1fea10804ffa5df3857b63a906c264ff.setContent(html_e5e3e6e39f1cdfd5a60dba7c3832b05b);
+            
+        
+
+        marker_fac50af08599f36037b78360b9cc1b2b.bindPopup(popup_1fea10804ffa5df3857b63a906c264ff)
+        ;
+
+        
+    
+    
+            marker_fac50af08599f36037b78360b9cc1b2b.bindTooltip(
+                `<div>
+                     Заборье (аварийная база, ноябрь–декабрь 1941)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            var marker_e35a3a57fa2a01ce36fe373506a76f86 = L.marker(
+                [59.1339, 37.9097],
+                {}
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
+        
+    
+            var icon_17fd7930c1d9e1eb44206ac20c79d778 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
+            );
+            marker_e35a3a57fa2a01ce36fe373506a76f86.setIcon(icon_17fd7930c1d9e1eb44206ac20c79d778);
+        
+    
+        var popup_d591beace2746444daf93518d67be033 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_d4dafc47a0f8bc83497cc8e5870dd712 = $(`<div id="html_d4dafc47a0f8bc83497cc8e5870dd712" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#27ae60;margin:0 0 6px 0;">Череповец —         транзитный узел</h3><hr>         <p>Промежуточный ж/д узел Северной железной дороги         между Вологдой и Тихвином (Волховстроем).</p>         <p>Через Череповец проходили эшелоны с продовольствием,         вооружением и топливом для Ленинградского и Волховского         фронтов.</p>         </div></div>`)[0];
+                popup_d591beace2746444daf93518d67be033.setContent(html_d4dafc47a0f8bc83497cc8e5870dd712);
+            
+        
+
+        marker_e35a3a57fa2a01ce36fe373506a76f86.bindPopup(popup_d591beace2746444daf93518d67be033)
+        ;
+
+        
+    
+    
+            marker_e35a3a57fa2a01ce36fe373506a76f86.bindTooltip(
                 `<div>
                      Череповец
                  </div>`,
@@ -515,104 +756,69 @@
             );
         
     
-            var marker_59abf77c319695e0b659aa95c8c004db = L.marker(
-                [59.55, 34.5],
+            var marker_6bb8a7842b60cdb12fcec1cdee84690d = L.marker(
+                [59.2205, 39.8918],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_dabeb4dc46339e83e7840b1ae3dc9f8e = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "warning-sign", "iconColor": "white", "markerColor": "orange", "prefix": "glyphicon"}
+            var icon_13afa3860da057262882cbe27fd63b73 = L.AwesomeMarkers.icon(
+                {"extraClasses": "fa-rotate-0", "icon": "transfer", "iconColor": "white", "markerColor": "green", "prefix": "glyphicon"}
             );
-            marker_59abf77c319695e0b659aa95c8c004db.setIcon(icon_dabeb4dc46339e83e7840b1ae3dc9f8e);
+            marker_6bb8a7842b60cdb12fcec1cdee84690d.setIcon(icon_13afa3860da057262882cbe27fd63b73);
         
     
-        var popup_b0fbf2e998ec69adabf40bc25b9048d9 = L.popup({"maxWidth": 400});
+        var popup_d3fee9e72e7512f1cf6e01db6dd7d6fc = L.popup({"maxWidth": 480});
 
         
             
-                var html_33a7f5d1f1c68a0d0cf9286cc39d71f9 = $(`<div id="html_33a7f5d1f1c68a0d0cf9286cc39d71f9" style="width: 100.0%; height: 100.0%;">             <div style="width:320px; font-family:Georgia, serif;">                 <h3 style="color:#8B4513;">Заборье — аварийная база</h3>                 <hr>                 <p>После захвата Тихвина (8.11 - 9.12.1941) грузы шли                  от Заборья по грунтовым дорогам (~320 км)                  до Ладоги через бездорожье.</p>                 <p>Это был крайне тяжёлый маршрут,                  пропускная способность — всего 200-400 т/день.</p>             </div>             </div>`)[0];
-                popup_b0fbf2e998ec69adabf40bc25b9048d9.setContent(html_33a7f5d1f1c68a0d0cf9286cc39d71f9);
+                var html_9aae380889f5ddc8523505ef45f6d811 = $(`<div id="html_9aae380889f5ddc8523505ef45f6d811" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#27ae60;margin:0 0 6px 0;">Вологда</h3><hr>         <p>Крупнейший тыловой ж/д узел Северной ж/д, через который         шло снабжение Ленинградского фронта со всей страны.</p>         <p>Маршрут: Москва/Урал/Сибирь — Вологда — Череповец —         Тихвин — Волховстрой — пристани Ладоги.</p>         </div></div>`)[0];
+                popup_d3fee9e72e7512f1cf6e01db6dd7d6fc.setContent(html_9aae380889f5ddc8523505ef45f6d811);
             
         
 
-        marker_59abf77c319695e0b659aa95c8c004db.bindPopup(popup_b0fbf2e998ec69adabf40bc25b9048d9)
+        marker_6bb8a7842b60cdb12fcec1cdee84690d.bindPopup(popup_d3fee9e72e7512f1cf6e01db6dd7d6fc)
         ;
 
         
     
     
-            marker_59abf77c319695e0b659aa95c8c004db.bindTooltip(
+            marker_6bb8a7842b60cdb12fcec1cdee84690d.bindTooltip(
                 `<div>
-                     Заборье
+                     Вологда (тыловой ж/д узел)
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var marker_ab7c1aea3ddcec3f5990749a024eb5b6 = L.marker(
-                [59.76, 30.97],
+            var marker_04b02f570bc7910ba8ead7784502ba0d = L.marker(
+                [59.9087, 29.7647],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_cdfb78b8b6d46ae3a200d844ff9e8b9f = L.AwesomeMarkers.icon(
-                {"extraClasses": "fa-rotate-0", "icon": "lock", "iconColor": "white", "markerColor": "darkred", "prefix": "glyphicon"}
-            );
-            marker_ab7c1aea3ddcec3f5990749a024eb5b6.setIcon(icon_cdfb78b8b6d46ae3a200d844ff9e8b9f);
-        
-    
-        var popup_d2c8f219cca99a1d8b7d8da2d3c259bf = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_d0926aff6e17f613d2a8f13334967b16 = $(`<div id="html_d0926aff6e17f613d2a8f13334967b16" style="width: 100.0%; height: 100.0%;">             <div style="width:300px; font-family:Georgia, serif;">                 <h3 style="color:#8B0000;">Мга — потерянный ж/д узел</h3>                 <hr>                 <p><b>Конец августа 1941:</b> Мга захвачена немцами.</p>                 <p>Потеря этого ж/д узла перерезала последнюю сухопутную                  ж/д связь Ленинграда с Большой землёй.</p>                 <p>Освобождена в январе 1944 г.</p>             </div>             </div>`)[0];
-                popup_d2c8f219cca99a1d8b7d8da2d3c259bf.setContent(html_d0926aff6e17f613d2a8f13334967b16);
-            
-        
-
-        marker_ab7c1aea3ddcec3f5990749a024eb5b6.bindPopup(popup_d2c8f219cca99a1d8b7d8da2d3c259bf)
-        ;
-
-        
-    
-    
-            marker_ab7c1aea3ddcec3f5990749a024eb5b6.bindTooltip(
-                `<div>
-                     Мга (оккупирована)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var marker_b2686a135c70f0d129d2bebbb5d595fa = L.marker(
-                [59.91, 29.76],
-                {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
-        
-    
-            var icon_c3bd8afc689863ab175657fd3e95a6ab = L.AwesomeMarkers.icon(
+            var icon_6b866aeb12df6fc2d7b716784025ca1c = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "flag", "iconColor": "white", "markerColor": "purple", "prefix": "glyphicon"}
             );
-            marker_b2686a135c70f0d129d2bebbb5d595fa.setIcon(icon_c3bd8afc689863ab175657fd3e95a6ab);
+            marker_04b02f570bc7910ba8ead7784502ba0d.setIcon(icon_6b866aeb12df6fc2d7b716784025ca1c);
         
     
-        var popup_8c9baf855d4e80256474dc67c0e6359e = L.popup({"maxWidth": 400});
+        var popup_58779a2798bddf74696ed07c31159bf6 = L.popup({"maxWidth": 480});
 
         
             
-                var html_b2f129e7a1ce62963d6f775e09e9649f = $(`<div id="html_b2f129e7a1ce62963d6f775e09e9649f" style="width: 100.0%; height: 100.0%;">             <div style="width:320px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Ораниенбаумский плацдарм</h3>                 <hr>                 <p>Советский плацдарм на южном берегу Финского залива,                  удерживавшийся в течение всей блокады.</p>                 <p>Снабжался морским путём через Финский залив из Ленинграда.                  Сыграл ключевую роль в полном снятии блокады в январе 1944 г.</p>             </div>             </div>`)[0];
-                popup_8c9baf855d4e80256474dc67c0e6359e.setContent(html_b2f129e7a1ce62963d6f775e09e9649f);
+                var html_b71f6333f191ed96a6242ec325997c45 = $(`<div id="html_b71f6333f191ed96a6242ec325997c45" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#6A0DAD;margin:0 0 6px 0;">Ораниенбаумский         плацдарм («Малая земля»)</h3><hr>         <p>Советский плацдарм на южном берегу Финского залива,         удерживавшийся в течение всей блокады (с сентября 1941 г.).</p>         <p>Снабжался морским путём через Кронштадт; зимой —         по льду залива. Опирался на огневую поддержку         кораблей и фортов Кронштадта.</p>         <p>Сыграл ключевую роль в Красносельско-Ропшинской         операции (январь 1944) — окончательном снятии блокады.</p>         </div></div>`)[0];
+                popup_58779a2798bddf74696ed07c31159bf6.setContent(html_b71f6333f191ed96a6242ec325997c45);
             
         
 
-        marker_b2686a135c70f0d129d2bebbb5d595fa.bindPopup(popup_8c9baf855d4e80256474dc67c0e6359e)
+        marker_04b02f570bc7910ba8ead7784502ba0d.bindPopup(popup_58779a2798bddf74696ed07c31159bf6)
         ;
 
         
     
     
-            marker_b2686a135c70f0d129d2bebbb5d595fa.bindTooltip(
+            marker_04b02f570bc7910ba8ead7784502ba0d.bindTooltip(
                 `<div>
                      Ораниенбаум (плацдарм)
                  </div>`,
@@ -620,34 +826,34 @@
             );
         
     
-            var marker_3751c50e26bf507cc6c06af267019de9 = L.marker(
-                [59.996, 29.766],
+            var marker_c869238ca6a3f4ce1f45161599e4fd06 = L.marker(
+                [59.9966, 29.767],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_addfc8b26b45b652f591e5c1f5ae01ac = L.AwesomeMarkers.icon(
+            var icon_8e1fb4fe7cd0f0a228dab1b51e8561be = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "anchor", "iconColor": "white", "markerColor": "darkblue", "prefix": "glyphicon"}
             );
-            marker_3751c50e26bf507cc6c06af267019de9.setIcon(icon_addfc8b26b45b652f591e5c1f5ae01ac);
+            marker_c869238ca6a3f4ce1f45161599e4fd06.setIcon(icon_8e1fb4fe7cd0f0a228dab1b51e8561be);
         
     
-        var popup_c6e3d9e2d884a81b59275d33d2042756 = L.popup({"maxWidth": 400});
+        var popup_6968e0ca175d6be6652b356d68266bb3 = L.popup({"maxWidth": 480});
 
         
             
-                var html_6b898c80adbfb2bdb4d1acea73751070 = $(`<div id="html_6b898c80adbfb2bdb4d1acea73751070" style="width: 100.0%; height: 100.0%;">             <div style="width:320px; font-family:Georgia, serif;">                 <h3 style="color:#2E5090;">Кронштадт — база Балтфлота</h3>                 <hr>                 <p>Главная база Балтийского флота.                  Артиллерия кораблей и фортов поддерживала оборону города.</p>                 <p>Через Кронштадт осуществлялось снабжение                  Ораниенбаумского плацдарма.</p>             </div>             </div>`)[0];
-                popup_c6e3d9e2d884a81b59275d33d2042756.setContent(html_6b898c80adbfb2bdb4d1acea73751070);
+                var html_3f2136e9c6eb97fc2f26a0a39d606ef3 = $(`<div id="html_3f2136e9c6eb97fc2f26a0a39d606ef3" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">         <h3 style="color:#2E5090;margin:0 0 6px 0;">Кронштадт —         главная база Балтийского флота</h3><hr>         <p>Артиллерия линкоров, крейсеров и фортов Кронштадта         активно поддерживала оборону Ленинграда: дальнобойные         орудия (305 мм) подавляли немецкие батареи.</p>         <p>Через Кронштадт осуществлялось снабжение         Ораниенбаумского плацдарма.</p>         </div></div>`)[0];
+                popup_6968e0ca175d6be6652b356d68266bb3.setContent(html_3f2136e9c6eb97fc2f26a0a39d606ef3);
             
         
 
-        marker_3751c50e26bf507cc6c06af267019de9.bindPopup(popup_c6e3d9e2d884a81b59275d33d2042756)
+        marker_c869238ca6a3f4ce1f45161599e4fd06.bindPopup(popup_6968e0ca175d6be6652b356d68266bb3)
         ;
 
         
     
     
-            marker_3751c50e26bf507cc6c06af267019de9.bindTooltip(
+            marker_c869238ca6a3f4ce1f45161599e4fd06.bindTooltip(
                 `<div>
                      Кронштадт
                  </div>`,
@@ -655,739 +861,642 @@
             );
         
     
-            var marker_e264495fc6e882bfd119a226e8f7bfb0 = L.marker(
-                [60.1, 30.9],
+            var marker_fc27ea929aa33f382aeae895cb942762 = L.marker(
+                [60.25, 31.5],
                 {}
-            ).addTo(feature_group_49a5e5c9cde2e14f29663b0b2bd212ee);
+            ).addTo(feature_group_408bf709692ee214a2d540e5cdb7ae1a);
         
     
-            var icon_80636c4d25db3c8ad65f64af0e028391 = L.AwesomeMarkers.icon(
+            var icon_0364092495948cff341b23ba455618dc = L.AwesomeMarkers.icon(
                 {"extraClasses": "fa-rotate-0", "icon": "stats", "iconColor": "white", "markerColor": "cadetblue", "prefix": "glyphicon"}
             );
-            marker_e264495fc6e882bfd119a226e8f7bfb0.setIcon(icon_80636c4d25db3c8ad65f64af0e028391);
+            marker_fc27ea929aa33f382aeae895cb942762.setIcon(icon_0364092495948cff341b23ba455618dc);
         
     
-        var popup_67b7fe07eacddae0f759c7b14394eeb5 = L.popup({"maxWidth": 530});
+        var popup_9d2b99a8f43ce3e28e5470f7b225961a = L.popup({"maxWidth": 480});
 
         
             
-                var html_a41b6fb92999d11eee81fd58ab152c8c = $(`<div id="html_a41b6fb92999d11eee81fd58ab152c8c" style="width: 100.0%; height: 100.0%;">     <div style="width:500px; font-family:Georgia, serif; max-height:650px; overflow-y:auto;">         <h2 style="color:#1a5276; text-align:center;">СВОДНАЯ СТАТИСТИКА СНАБЖЕНИЯ ЛЕНИНГРАДА</h2>         <hr style="border:3px solid #1a5276;">          <h3>Общие объёмы снабжения через Ладогу (1941-1943):</h3>         <table border="1" cellpadding="5" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#d6eaf8;">                 <th>Маршрут</th><th>Период</th><th>Грузов (тонн)</th><th>Эвакуировано (чел.)</th><th>Потери грузов</th>             </tr>             <tr>                 <td>Ледовая трасса (зима 41-42)</td>                 <td>22.11.41 — 24.04.42</td>                 <td>~361,109</td>                 <td>~514,069</td>                 <td>~10-15%</td>             </tr>             <tr>                 <td>Навигация 1942</td>                 <td>22.05 — 08.12.42</td>                 <td>~790,000</td>                 <td>~540,000</td>                 <td>~8-12%</td>             </tr>             <tr>                 <td>Ледовая трасса (зима 42-43)</td>                 <td>19.12.42 — 30.03.43</td>                 <td>~206,000</td>                 <td>~89,000</td>                 <td>~5-8%</td>             </tr>             <tr>                 <td>Воздушный мост (1941-42)</td>                 <td>09.41 — конец 42</td>                 <td>~13,229</td>                 <td>~50,000</td>                 <td>~5-8%</td>             </tr>             <tr>                 <td>Трубопровод (ГСМ)</td>                 <td>06.42 — 03.43</td>                 <td>~40,000</td>                 <td>--</td>                 <td>~2%</td>             </tr>             <tr>                 <td>Дорога Победы (ж/д)</td>                 <td>02.43 — 01.44</td>                 <td>~4,440,000</td>                 <td>--</td>                 <td>~8-12%</td>             </tr>             <tr style="background:#abebc6; font-weight:bold;">                 <td colspan="2">ИТОГО через все маршруты</td>                 <td>~5,850,000+</td>                 <td>~1,193,000+</td>                 <td>~5-15%</td>             </tr>         </table>          <h3>Как менялась ситуация со снабжением:</h3>         <table border="1" cellpadding="5" style="border-collapse:collapse; font-size:11px; width:100%;">             <tr style="background:#f5b7b1;"><th>Период</th><th>Ситуация</th><th>Снабжение</th></tr>             <tr>                 <td><b>Сент-нояб 1941</b></td>                 <td>Катастрофа. Запасы на исходе.</td>                 <td>600-800 т/день</td>             </tr>             <tr>                 <td><b>Дек 1941 — Янв 1942</b></td>                 <td>Голод. Смертность 3,000-4,000 чел/день</td>                 <td>1,000-1,700 т/день</td>             </tr>             <tr style="background:#fdebd0;">                 <td><b>Фев-Апр 1942</b></td>                 <td>Стабилизация.</td>                 <td>2,500-3,500 т/день</td>             </tr>             <tr style="background:#d5f5e3;">                 <td><b>Лето-осень 1942</b></td>                 <td>Улучшение.</td>                 <td>4,000-6,000 т/день</td>             </tr>             <tr style="background:#abebc6;">                 <td><b>Фев-дек 1943</b></td>                 <td>После прорыва.</td>                 <td>5,000-6,000 т/день</td>             </tr>             <tr style="background:#abebc6;">                 <td><b>Янв 1944</b></td>                 <td>Полное снятие блокады!</td>                 <td>Полная свобода коммуникаций</td>             </tr>         </table>          <hr>         <p style="text-align:center; font-size:11px; color:#666;">         Источники: Д.В. Павлов «Ленинград в блокаде»; В.М. Ковальчук «Ленинград и Большая Земля»;          Документы ГКО; ЦАМО РФ.</p>     </div>     </div>`)[0];
-                popup_67b7fe07eacddae0f759c7b14394eeb5.setContent(html_a41b6fb92999d11eee81fd58ab152c8c);
+                var html_dd10587def61b9ac2a5df7ee7a562aa6 = $(`<div id="html_dd10587def61b9ac2a5df7ee7a562aa6" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#1a5276;text-align:center;margin:0;">     СВОДНАЯ СТАТИСТИКА СНАБЖЕНИЯ</h2>     <hr style="border:2px solid #1a5276;margin:6px 0;">      <h4 style="margin:6px 0;">Через Ладогу (1941–1943):</h4>     <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#d6eaf8;">             <th>Маршрут</th><th>Период</th><th>Грузов (т)</th>             <th>Эваку- ировано</th></tr>         <tr><td>Лёд (зима 1941–42)</td><td>22.11.41 – 24.04.42</td>             <td>~361 000</td><td>~514 000</td></tr>         <tr><td>Навигация 1942</td><td>22.05 – 08.12.42</td>             <td>~790 000</td><td>~540 000</td></tr>         <tr><td>Лёд (зима 1942–43)</td><td>20.12.42 – 30.03.43</td>             <td>~206 000</td><td>~89 000</td></tr>         <tr><td>Навигация 1943</td><td>апрель – ноябрь 1943</td>             <td>~208 000</td><td>—</td></tr>         <tr><td>Трубопровод (ГСМ)</td><td>06.42 – 03.43</td>             <td>~40 000</td><td>—</td></tr>         <tr><td>Воздушный мост (преим. 1941)</td>             <td>сент. 1941 – 1942</td>             <td>порядка 10–15 тыс.</td><td>десятки тыс.</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Состояние снабжения по периодам:</h4>     <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#f5b7b1;">             <th>Период</th><th>Ситуация</th></tr>         <tr><td><b>Сент.–нояб. 1941</b></td>             <td>Запасы тают, водная навигация под огнём;             начинается голод.</td></tr>         <tr><td><b>Дек. 1941 – янв. 1942</b></td>             <td>Пик голода; ежедневная смертность             в городе — несколько тысяч человек.</td></tr>         <tr style="background:#fdebd0;">             <td><b>Февр.–апр. 1942</b></td>             <td>Подвоз нарастает; нормы повышаются.</td></tr>         <tr style="background:#d5f5e3;">             <td><b>Лето–осень 1942</b></td>             <td>Навигация даёт основной поток;             продолжается массовая эвакуация.</td></tr>         <tr style="background:#abebc6;">             <td><b>Февр.–дек. 1943</b></td>             <td>«Дорога Победы» становится главной артерией.</td></tr>         <tr style="background:#abebc6;">             <td><b>Янв. 1944</b></td>             <td>Полное снятие блокады — свободные коммуникации.</td></tr>     </table>      <p style="text-align:center;font-size:11px;color:#666;margin-top:8px;">     Источники: Д. В. Павлов «Ленинград в блокаде»;     В. М. Ковальчук «Ленинград и Большая земля»;     документы ГКО, ЦАМО РФ.</p>     </div></div>`)[0];
+                popup_9d2b99a8f43ce3e28e5470f7b225961a.setContent(html_dd10587def61b9ac2a5df7ee7a562aa6);
             
         
 
-        marker_e264495fc6e882bfd119a226e8f7bfb0.bindPopup(popup_67b7fe07eacddae0f759c7b14394eeb5)
+        marker_fc27ea929aa33f382aeae895cb942762.bindPopup(popup_9d2b99a8f43ce3e28e5470f7b225961a)
         ;
 
         
     
     
-            marker_e264495fc6e882bfd119a226e8f7bfb0.bindTooltip(
+            marker_fc27ea929aa33f382aeae895cb942762.bindTooltip(
                 `<div>
-                     СВОДНАЯ СТАТИСТИКА — нажмите для общей таблицы
+                     СВОДНАЯ СТАТИСТИКА — нажмите
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_49a5e5c9cde2e14f29663b0b2bd212ee.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            feature_group_408bf709692ee214a2d540e5cdb7ae1a.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_144123e228727393088a62c3428df3d2 = L.featureGroup(
+            var feature_group_797335fddb74c2fe0dded53cf541cc5a = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_aef92a7cd191442112067d89fb2a5434 = L.polyline(
-                [[60.0158, 30.5222], [60.02, 30.65], [60.028, 30.8], [60.035, 30.95], [60.038, 31.1], [60.04, 31.28]],
+            var poly_line_18bc1a6a1c247e513a22e1035b448ce8 = L.polyline(
+                [[60.0944, 31.0867], [60.085, 31.22], [60.07, 31.38], [60.055, 31.55], [60.04, 31.72], [60.029, 31.88], [60.0181, 31.9714]],
                 {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": "15 10", "dashOffset": null, "fill": false, "fillColor": "#2980b9", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.9, "smoothFactor": 1.0, "stroke": true, "weight": 6}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
+            ).addTo(feature_group_797335fddb74c2fe0dded53cf541cc5a);
         
     
-        var popup_31895e86f45616bb9e327cc4eb6ccf16 = L.popup({"maxWidth": 480});
+        var popup_0561c78badd32f873f65f2205bfd2153 = L.popup({"maxWidth": 480});
 
         
             
-                var html_69c435eab3ce94c78cd96507349cb817 = $(`<div id="html_69c435eab3ce94c78cd96507349cb817" style="width: 100.0%; height: 100.0%;">     <div style="width:450px; font-family:Georgia, serif; max-height:600px; overflow-y:auto;">         <h2 style="color:#1a5276; text-align:center;">ДОРОГА ЖИЗНИ</h2>         <h4 style="text-align:center; color:#555;">Военно-автомобильная дорога N101 (ВАД-101)</h4>         <hr style="border:2px solid #1a5276;">          <h3>Периоды работы ледовой трассы:</h3>         <table border="1" cellpadding="5" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#d6eaf8;">                 <th>Зима</th><th>Начало</th><th>Конец</th><th>Дней работы</th>             </tr>             <tr><td><b>1941-42</b></td><td>22.11.1941</td><td>24.04.1942</td><td>152</td></tr>             <tr><td><b>1942-43</b></td><td>19.12.1942</td><td>30.03.1943</td><td>101</td></tr>         </table>          <h3>Объёмы перевозок (зима 1941-42):</h3>         <table border="1" cellpadding="5" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#d5f5e3;">                 <th>Месяц</th><th>Доставлено (т)</th><th>Авто/день</th><th>Примечание</th>             </tr>             <tr><td>Ноябрь 1941</td><td>~800</td><td>60-70</td><td>Тонкий лёд, полуторки</td></tr>             <tr><td>Декабрь 1941</td><td>~16,449</td><td>150-200</td><td>Лёд окреп</td></tr>             <tr><td>Январь 1942</td><td>~52,934</td><td>400-500</td><td>Многополосное движение</td></tr>             <tr><td>Февраль 1942</td><td>~86,041</td><td>700-800</td><td>Пик перевозок</td></tr>             <tr><td>Март 1942</td><td>~118,296</td><td>900+</td><td>Максимум</td></tr>             <tr><td>Апрель 1942</td><td>~87,233</td><td>снижение</td><td>Таяние льда</td></tr>             <tr><td colspan="4" style="background:#eee;"><b>ИТОГО за зиму 1941-42: ~361,109 тонн</b></td></tr>         </table>          <h3>Что перевозили:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#fdebd0;"><th>Груз</th><th>Тонн (зима 1941-42)</th><th>%</th></tr>             <tr><td>Продовольствие</td><td>~262,419</td><td>72.7%</td></tr>             <tr><td>ГСМ</td><td>~35,441</td><td>9.8%</td></tr>             <tr><td>Боеприпасы и вооружение</td><td>~31,910</td><td>8.8%</td></tr>             <tr><td>Военное имущество</td><td>~20,758</td><td>5.7%</td></tr>             <tr><td>Уголь и стройматериалы</td><td>~10,581</td><td>3.0%</td></tr>         </table>          <h3>Транспортные средства:</h3>         <ul>             <li><b>ГАЗ-АА («полуторка»)</b> — грузоподъёмность 1.5 т</li>             <li><b>ЗИС-5 («трёхтонка»)</b> — 3 т</li>             <li>Конные обозы (первые недели)</li>             <li>Тракторы с санями</li>         </ul>          <h3>Эвакуация населения (зима 1941-42):</h3>         <p><b>~514,069 человек</b> эвакуировано по ледовой трассе<br>         <small>В том числе ~35,713 раненых бойцов</small></p>          <h3 style="color:#c0392b;">ПОТЕРИ:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#f5b7b1;"><th>Показатель</th><th>Данные</th></tr>             <tr><td>Автомашин провалилось под лёд</td><td>~1,004 (зима 1941-42)</td></tr>             <tr><td>% потерь автотранспорта</td><td>~29% от общего парка</td></tr>             <tr><td>Потери грузов</td><td>~10-15% от отправленного</td></tr>             <tr><td>Погибло водителей и обслуги</td><td>сотни человек</td></tr>             <tr><td><b>% грузов, доехавших до Ленинграда</b></td><td><b>~85-90%</b></td></tr>         </table>     </div>     </div>`)[0];
-                popup_31895e86f45616bb9e327cc4eb6ccf16.setContent(html_69c435eab3ce94c78cd96507349cb817);
+                var html_855c3a2cdf3c0c9bab5c64f855d03309 = $(`<div id="html_855c3a2cdf3c0c9bab5c64f855d03309" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#1a5276;text-align:center;margin:0;">ДОРОГА ЖИЗНИ</h2>     <p style="text-align:center;color:#555;margin:2px 0 8px 0;font-size:12px;">     Военно-автомобильная дорога № 101 (ВАД-101)<br>     Коккорево — Кобона, около 30 км по льду Ладоги</p>     <hr style="border:1.5px solid #1a5276;margin:6px 0;">      <h4 style="margin:6px 0;">Периоды работы ледовой трассы:</h4>     <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#d6eaf8;">             <th>Зима</th><th>Открыта</th><th>Закрыта</th><th>Дней</th></tr>         <tr><td><b>1941–42</b></td><td>22.11.1941</td>             <td>24.04.1942</td><td>~152</td></tr>         <tr><td><b>1942–43</b></td><td>20.12.1942</td>             <td>30.03.1943</td><td>~101</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Объёмы перевозок (зима 1941–42):</h4>     <table border="1" cellpadding="3" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#d5f5e3;">             <th>Месяц</th><th>Доставлено в Лгд (т)</th><th>Примечание</th></tr>         <tr><td>Ноябрь 1941</td><td>~800</td>             <td>тонкий лёд, конные обозы</td></tr>         <tr><td>Декабрь 1941</td><td>~16 500</td><td>лёд окреп</td></tr>         <tr><td>Январь 1942</td><td>~52 900</td><td>массовое движение</td></tr>         <tr><td>Февраль 1942</td><td>~86 000</td><td>—</td></tr>         <tr><td>Март 1942</td><td>~118 000</td>             <td>пик перевозок</td></tr>         <tr><td>Апрель 1942</td><td>~87 200</td><td>таяние льда</td></tr>         <tr style="background:#eee;font-weight:bold;">             <td>ИТОГО</td><td>~361 000</td>             <td>(данные Д. В. Павлова)</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Состав груза (зима 1941–42):</h4>     <table border="1" cellpadding="3" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#fdebd0;"><th>Груз</th><th>Тонн</th><th>%</th></tr>         <tr><td>Продовольствие</td><td>~262 000</td><td>~73 %</td></tr>         <tr><td>ГСМ</td><td>~35 000</td><td>~10 %</td></tr>         <tr><td>Боеприпасы и вооружение</td><td>~32 000</td><td>~9 %</td></tr>         <tr><td>Военное имущество</td><td>~21 000</td><td>~6 %</td></tr>         <tr><td>Уголь, стройматериалы</td><td>~11 000</td><td>~3 %</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Транспорт:</h4>     <ul style="margin:4px 0;padding-left:18px;">         <li><b>ГАЗ-АА «полуторка»</b> — 1,5 т (основной)</li>         <li><b>ЗИС-5 «трёхтонка»</b> — 3 т</li>         <li>Конные обозы — в первые недели</li>         <li>Гусеничные тягачи с санями</li>     </ul>      <h4 style="margin:8px 0 4px 0;">Эвакуация (зима 1941–42):</h4>     <p style="margin:4px 0;">~514 тыс. человек вывезено     по ледовой трассе (включая раненых).</p>      <h4 style="margin:8px 0 4px 0;color:#c0392b;">Потери:</h4>     <p style="margin:4px 0;font-size:12px;">     Под лёд провалилось около 1 000 автомашин (часть удалось поднять).     Трасса непрерывно обстреливалась артиллерией и     бомбилась авиацией; для прикрытия были развёрнуты     зенитные части и истребительные полки.</p>     </div></div>`)[0];
+                popup_0561c78badd32f873f65f2205bfd2153.setContent(html_855c3a2cdf3c0c9bab5c64f855d03309);
             
         
 
-        poly_line_aef92a7cd191442112067d89fb2a5434.bindPopup(popup_31895e86f45616bb9e327cc4eb6ccf16)
+        poly_line_18bc1a6a1c247e513a22e1035b448ce8.bindPopup(popup_0561c78badd32f873f65f2205bfd2153)
         ;
 
         
     
     
-            poly_line_aef92a7cd191442112067d89fb2a5434.bindTooltip(
+            poly_line_18bc1a6a1c247e513a22e1035b448ce8.bindTooltip(
                 `<div>
-                     Дорога жизни — ледовая трасса (30 км по льду). Нажмите для подробностей.
+                     Дорога жизни — ледовая трасса. Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var regular_polygon_marker_d9db45fdf0225002279da943534690fc = new L.RegularPolygonMarker(
-                [60.0179, 30.586100000000002],
-                {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2980b9", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "numberOfSides": 3, "opacity": 1.0, "radius": 8, "rotation": 90, "stroke": true, "weight": 3}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
+            feature_group_797335fddb74c2fe0dded53cf541cc5a.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var regular_polygon_marker_08f71e3cf27ed87652a6b94397eeb0bf = new L.RegularPolygonMarker(
-                [60.024, 30.725],
-                {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2980b9", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "numberOfSides": 3, "opacity": 1.0, "radius": 8, "rotation": 90, "stroke": true, "weight": 3}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
-        
-    
-            var regular_polygon_marker_bd118ce345ec847a91341f9d78ac9235 = new L.RegularPolygonMarker(
-                [60.031499999999994, 30.875],
-                {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2980b9", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "numberOfSides": 3, "opacity": 1.0, "radius": 8, "rotation": 90, "stroke": true, "weight": 3}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
-        
-    
-            var regular_polygon_marker_8baee36bb38882951628a077f5a12cd2 = new L.RegularPolygonMarker(
-                [60.0365, 31.025],
-                {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2980b9", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "numberOfSides": 3, "opacity": 1.0, "radius": 8, "rotation": 90, "stroke": true, "weight": 3}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
-        
-    
-            var regular_polygon_marker_0b1b21af407aefc5635d4eb11176aae3 = new L.RegularPolygonMarker(
-                [60.039, 31.19],
-                {"bubblingMouseEvents": true, "color": "#2980b9", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2980b9", "fillOpacity": 0.8, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "numberOfSides": 3, "opacity": 1.0, "radius": 8, "rotation": 90, "stroke": true, "weight": 3}
-            ).addTo(feature_group_144123e228727393088a62c3428df3d2);
-        
-    
-            feature_group_144123e228727393088a62c3428df3d2.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
-        
-    
-            var feature_group_f5cc94bf579412ea6c17a0cc5f804572 = L.featureGroup(
+            var feature_group_7124841ebd3d18ecb3db91f8095ecff2 = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_4d27abed1779171255b965267fd7bfab = L.polyline(
-                [[60.03, 30.57], [60.08, 30.7], [60.15, 31.0], [60.12, 31.3], [60.04, 31.28]],
-                {"bubblingMouseEvents": true, "color": "#1abc9c", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1abc9c", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 5}
-            ).addTo(feature_group_f5cc94bf579412ea6c17a0cc5f804572);
+            var poly_line_d0a1d627c20f8a477c8f60a8a7be4129 = L.polyline(
+                [[60.1142, 31.0808], [60.13, 31.25], [60.15, 31.5], [60.15, 31.75], [60.13, 31.9], [60.0181, 31.9714]],
+                {"bubblingMouseEvents": true, "color": "#1abc9c", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#1abc9c", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(feature_group_7124841ebd3d18ecb3db91f8095ecff2);
         
     
-        var popup_c6feaf9a3fe62d9ceb23ae6c31a96e10 = L.popup({"maxWidth": 480});
+        var popup_f477ece89ebf548d6b8dee9dc51a3990 = L.popup({"maxWidth": 480});
 
         
             
-                var html_e6fd018fde99168505d02657cc9a3b2e = $(`<div id="html_e6fd018fde99168505d02657cc9a3b2e" style="width: 100.0%; height: 100.0%;">     <div style="width:450px; font-family:Georgia, serif; max-height:600px; overflow-y:auto;">         <h2 style="color:#1a5276; text-align:center;">ВОДНАЯ НАВИГАЦИЯ ПО ЛАДОГЕ</h2>         <hr style="border:2px solid #1a5276;">          <h3>Периоды навигации:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#d6eaf8;"><th>Год</th><th>Период</th><th>Перевезено грузов</th></tr>             <tr><td>1941</td><td>12.09 — 15.11.1941</td><td>~60,000 т</td></tr>             <tr><td>1942</td><td>22.05 — 08.12.1942</td><td>~790,000 т</td></tr>             <tr><td>1943</td><td>Апрель — ноябрь</td><td>~208,000 т</td></tr>         </table>          <h3>Состав грузов (навигация 1942):</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#fdebd0;"><th>Груз</th><th>Тонн</th></tr>             <tr><td>Продовольствие</td><td>~353,000</td></tr>             <tr><td>ГСМ (наливные баржи)</td><td>~156,000</td></tr>             <tr><td>Вооружение и боеприпасы</td><td>~134,000</td></tr>             <tr><td>Уголь</td><td>~92,000</td></tr>             <tr><td>Прочие грузы</td><td>~55,000</td></tr>         </table>          <h3>Суда:</h3>         <ul>             <li>Баржи (деревянные и металлические) — до 600-800 т</li>             <li>Буксиры — «Орёл», «Морской лев» и др.</li>             <li>Озёрные транспорты</li>             <li>Тендеры (самоходные плоскодонки)</li>             <li>Канонерские лодки Ладожской флотилии (сопровождение)</li>         </ul>          <h3>Эвакуация (навигация 1942):</h3>         <p><b>~540,000 человек</b> вывезено из Ленинграда</p>          <h3 style="color:#c0392b;">ПОТЕРИ:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#f5b7b1;"><th>Потери</th><th>Данные</th></tr>             <tr><td>Потоплено барж (навигация 1942)</td><td>~24 баржи</td></tr>             <tr><td>Повреждено судов</td><td>~47</td></tr>             <tr><td>Потери грузов от бомбёжек</td><td>~8-12%</td></tr>             <tr><td>Крупнейшая катастрофа</td>                 <td>Баржа N725, 17.09.1941 — погибло ~1,000+ чел.</td></tr>             <tr><td><b>% грузов доставлен</b></td><td><b>~88-92%</b></td></tr>         </table>     </div>     </div>`)[0];
-                popup_c6feaf9a3fe62d9ceb23ae6c31a96e10.setContent(html_e6fd018fde99168505d02657cc9a3b2e);
+                var html_8631959a7668e113386d71252eced550 = $(`<div id="html_8631959a7668e113386d71252eced550" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#117a65;text-align:center;margin:0;">ВОДНАЯ НАВИГАЦИЯ     ПО ЛАДОГЕ</h2>     <hr style="border:1.5px solid #117a65;margin:6px 0;">      <h4 style="margin:6px 0;">Периоды навигации:</h4>     <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#d6eaf8;">             <th>Год</th><th>Период</th><th>Грузов в Лгд</th></tr>         <tr><td>1941</td><td>12.09 – 15.11.1941</td>             <td>~60 тыс. т</td></tr>         <tr><td>1942</td><td>22.05 – 08.12.1942</td>             <td>~790 тыс. т</td></tr>         <tr><td>1943</td><td>апрель – ноябрь</td>             <td>~208 тыс. т</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Состав грузов (1942):</h4>     <table border="1" cellpadding="3" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr style="background:#fdebd0;"><th>Груз</th><th>Тонн</th></tr>         <tr><td>Продовольствие</td><td>~350 тыс.</td></tr>         <tr><td>ГСМ (наливные баржи)</td><td>~155 тыс.</td></tr>         <tr><td>Вооружение и боеприпасы</td><td>~135 тыс.</td></tr>         <tr><td>Уголь</td><td>~90 тыс.</td></tr>         <tr><td>Прочие грузы</td><td>~60 тыс.</td></tr>     </table>      <h4 style="margin:8px 0 4px 0;">Суда:</h4>     <ul style="margin:4px 0;padding-left:18px;">         <li>Озёрные баржи (деревянные, металлические) — до 600–800 т</li>         <li>Буксиры (в т.ч. «Орёл», «Никулясы»)</li>         <li>Тендеры — самоходные плоскодонки</li>         <li>Канонерские лодки Ладожской флотилии (сопровождение)</li>     </ul>      <h4 style="margin:8px 0 4px 0;">Эвакуация (навигация 1942):</h4>     <p style="margin:4px 0;">~540 тыс. человек вывезено.</p>      <h4 style="margin:8px 0 4px 0;color:#c0392b;">Потери и инциденты:</h4>     <p style="margin:4px 0;font-size:12px;">     Регулярные удары авиации; катастрофа баржи № 752 в ночь на     17 сентября 1941 г. — оценки погибших: от нескольких сотен     до более тысячи человек (в основном эвакуируемых     военнослужащих и курсантов).</p>     </div></div>`)[0];
+                popup_f477ece89ebf548d6b8dee9dc51a3990.setContent(html_8631959a7668e113386d71252eced550);
             
         
 
-        poly_line_4d27abed1779171255b965267fd7bfab.bindPopup(popup_c6feaf9a3fe62d9ceb23ae6c31a96e10)
+        poly_line_d0a1d627c20f8a477c8f60a8a7be4129.bindPopup(popup_f477ece89ebf548d6b8dee9dc51a3990)
         ;
 
         
     
     
-            poly_line_4d27abed1779171255b965267fd7bfab.bindTooltip(
+            poly_line_d0a1d627c20f8a477c8f60a8a7be4129.bindTooltip(
                 `<div>
-                     Водная навигация: Осиновец — Кобона (~30 км). Нажмите для подробностей.
+                     Водная навигация: Осиновец — Кобона. Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_7d9b3d32af1e9dbec2b286ea52bb917f = L.polyline(
-                [[60.048, 31.28], [60.128, 31.3], [60.158, 31.0], [60.088, 30.7], [60.038000000000004, 30.57]],
-                {"bubblingMouseEvents": true, "color": "#e74c3c", "dashArray": "10 5", "dashOffset": null, "fill": false, "fillColor": "#e74c3c", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_f5cc94bf579412ea6c17a0cc5f804572);
+            var poly_line_4523b09d6e6138b0d748c3fb6c310871 = L.polyline(
+                [[60.1059, 32.3175], [60.08, 32.2], [60.05, 32.1], [60.0303, 32.0522], [60.0181, 31.9714]],
+                {"bubblingMouseEvents": true, "color": "#117A65", "dashArray": "10 8", "dashOffset": null, "fill": false, "fillColor": "#117A65", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_7124841ebd3d18ecb3db91f8095ecff2);
         
     
-            poly_line_7d9b3d32af1e9dbec2b286ea52bb917f.bindTooltip(
+            poly_line_4523b09d6e6138b0d748c3fb6c310871.bindTooltip(
                 `<div>
-                     Обратный рейс: эвакуация жителей из Ленинграда
+                     Каботажный маршрут: Новая Ладога — Кобона
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_f5cc94bf579412ea6c17a0cc5f804572.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            feature_group_7124841ebd3d18ecb3db91f8095ecff2.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_79c0110f7ff712f88710da94aa9cb711 = L.featureGroup(
+            var feature_group_ef75e1b4714001c3ac2a044feb472426 = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_12cb8be5adaafbf883eea2e4aba2c34c = L.polyline(
-                [[59.2205, 39.8918], [59.35, 38.5], [59.45, 37.0], [59.55, 35.5], [59.645, 33.51], [59.75, 33.0], [59.926, 32.338], [59.98, 31.8], [60.04, 31.28]],
-                {"bubblingMouseEvents": true, "color": "#27ae60", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#27ae60", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 5}
-            ).addTo(feature_group_79c0110f7ff712f88710da94aa9cb711);
+            var poly_line_f9cfa1ebd4abb730cabda9d8bf9b9348 = L.polyline(
+                [[59.2205, 39.8918], [59.1339, 37.9097], [59.45, 35.5], [59.6447, 33.5275], [59.75, 33.0], [59.9258, 32.3375]],
+                {"bubblingMouseEvents": true, "color": "#27ae60", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#27ae60", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(feature_group_ef75e1b4714001c3ac2a044feb472426);
         
     
-        var popup_c7598c00cb66505c6a57e693fd8741fb = L.popup({"maxWidth": 460});
+        var popup_f5ef098502bf5de667b917b5f02607c8 = L.popup({"maxWidth": 480});
 
         
             
-                var html_39e5bf42a1c1f94ae09d729fbb4f358a = $(`<div id="html_39e5bf42a1c1f94ae09d729fbb4f358a" style="width: 100.0%; height: 100.0%;">     <div style="width:430px; font-family:Georgia, serif; max-height:550px; overflow-y:auto;">         <h2 style="color:#27ae60; text-align:center;">ЖЕЛЕЗНОДОРОЖНОЕ СНАБЖЕНИЕ</h2>         <hr style="border:2px solid #27ae60;">          <h3>Маршрут: Вологда - Тихвин - Волховстрой - Ладога</h3>          <p>Основная артерия подвоза грузов с «Большой земли»          к перевалочным базам на Ладоге.</p>          <h3>Динамика:</h3>         <h4>Осень 1941:</h4>         <ul>             <li>8.11.1941 — немцы захватили Тихвин, путь перерезан</li>             <li>Грузы шли окольным путём через Заборье (~320 км по бездорожью)</li>             <li>Пропускная способность упала до 200-400 т/день</li>         </ul>         <h4>Декабрь 1941 — 1942:</h4>         <ul>             <li>09.12.1941 — Тихвин освобождён</li>             <li>Ж/д восстановлена к 01.01.1942</li>             <li>Поставки выросли до 1,500-2,000 т/день</li>         </ul>          <h3>Что шло по ж/д:</h3>         <ul>             <li>Мука, крупы, мясные консервы (со всего СССР)</li>             <li>Цистерны с ГСМ</li>             <li>Платформы с вооружением, танками, самолётами</li>             <li>Уголь для электростанций</li>             <li>Медикаменты</li>         </ul>          <h3 style="color:#c0392b;">Потери:</h3>         <p>Ж/д узлы подвергались регулярным бомбардировкам.</p>         <p><b>Доставляемость по ж/д:</b> ~92-95%</p>     </div>     </div>`)[0];
-                popup_c7598c00cb66505c6a57e693fd8741fb.setContent(html_39e5bf42a1c1f94ae09d729fbb4f358a);
+                var html_dfb4f3ae7ce12ff6f8f5e8e03851a802 = $(`<div id="html_dfb4f3ae7ce12ff6f8f5e8e03851a802" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#27ae60;text-align:center;margin:0;">ЖЕЛЕЗНОДОРОЖНОЕ     СНАБЖЕНИЕ</h2>     <p style="text-align:center;color:#555;margin:2px 0 8px 0;font-size:12px;">     Вологда — Череповец — Тихвин — Волховстрой — пристани Ладоги</p>     <hr style="border:1.5px solid #27ae60;margin:6px 0;">      <p>Главная артерия подвоза грузов с «Большой земли» к     перевалочным базам на Ладоге.</p>      <h4 style="margin:8px 0 4px 0;">Хронология:</h4>     <ul style="margin:4px 0;padding-left:18px;">         <li><b>30.08.1941:</b> потеряна Мга — последняя сухопутная         ж/д связь Ленинграда</li>         <li><b>08.11.1941:</b> немцы захватывают Тихвин — путь         к пристаням Ладоги отрезан</li>         <li>Грузы временно идут окружным путём от ст. Заборье</li>         <li><b>09.12.1941:</b> Тихвин освобождён</li>         <li><b>01.01.1942:</b> восстановлено ж/д сообщение         до Войбокало</li>         <li><b>Зима 1941–42:</b> построена ж/д ветка         Войбокало — Кобона (~35 км)</li>     </ul>      <h4 style="margin:8px 0 4px 0;">Что перевозили:</h4>     <ul style="margin:4px 0;padding-left:18px;">         <li>Продовольствие со всего СССР</li>         <li>Горючее в цистернах</li>         <li>Боеприпасы, вооружение, бронетехнику, самолёты</li>         <li>Уголь, медикаменты, шанцевый инструмент</li>     </ul>     </div></div>`)[0];
+                popup_f5ef098502bf5de667b917b5f02607c8.setContent(html_dfb4f3ae7ce12ff6f8f5e8e03851a802);
             
         
 
-        poly_line_12cb8be5adaafbf883eea2e4aba2c34c.bindPopup(popup_c7598c00cb66505c6a57e693fd8741fb)
+        poly_line_f9cfa1ebd4abb730cabda9d8bf9b9348.bindPopup(popup_f5ef098502bf5de667b917b5f02607c8)
         ;
 
         
     
     
-            poly_line_12cb8be5adaafbf883eea2e4aba2c34c.bindTooltip(
+            poly_line_f9cfa1ebd4abb730cabda9d8bf9b9348.bindTooltip(
                 `<div>
-                     Ж/Д путь: Вологда - Тихвин - Волховстрой - Кобона. Нажмите.
+                     Ж/Д: Вологда — Тихвин — Волхов. Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_be3907b99f811df92e1198a8f92af23d = L.polyline(
-                [[60.03, 30.57], [60.01, 30.48], [59.98, 30.42], [59.96, 30.38], [59.9343, 30.3351]],
-                {"bubblingMouseEvents": true, "color": "#229954", "dashArray": "10 5", "dashOffset": null, "fill": false, "fillColor": "#229954", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 4}
-            ).addTo(feature_group_79c0110f7ff712f88710da94aa9cb711);
+            var poly_line_8e976332f9e41c5e350a6459eb3b9f61 = L.polyline(
+                [[59.9258, 32.3375], [59.9111, 32.0306], [59.97, 31.99], [60.0181, 31.9714]],
+                {"bubblingMouseEvents": true, "color": "#196F3D", "dashArray": "10 5", "dashOffset": null, "fill": false, "fillColor": "#196F3D", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 4}
+            ).addTo(feature_group_ef75e1b4714001c3ac2a044feb472426);
         
     
-        var popup_5749cb0a4f31a797e8d1bb8c96b50f49 = L.popup({"maxWidth": 370});
+        var popup_4aa87fad02ecd063b7d5a9746cd3c8e7 = L.popup({"maxWidth": 480});
 
         
             
-                var html_6b24290a18de85ce91be02d20b311967 = $(`<div id="html_6b24290a18de85ce91be02d20b311967" style="width: 100.0%; height: 100.0%;">     <div style="width:350px; font-family:Georgia, serif;">         <h3 style="color:#27ae60;">Ириновская железнодорожная ветка</h3>         <hr>         <p>Узкоколейная (перешитая на широкую колею) ж/д линия,          связывавшая порт Осиновец с Ленинградом.</p>         <p><b>Длина:</b> ~55 км</p>         <p><b>Роль:</b> последнее звено — доставка грузов с Ладоги          непосредственно на склады и распределительные пункты города.</p>         <p>Работала круглосуточно. Обстреливалась немецкой артиллерией.</p>     </div>     </div>`)[0];
-                popup_5749cb0a4f31a797e8d1bb8c96b50f49.setContent(html_6b24290a18de85ce91be02d20b311967);
+                var html_3f4f6c409959650fbca51d61edb9fffe = $(`<div id="html_3f4f6c409959650fbca51d61edb9fffe" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#196F3D;margin:0 0 6px 0;'>Ж/Д ветка Войбокало — Кобона</h3><hr><p>Построена с декабря 1941 г. за несколько недель (около 35 км) силами 9-й и 11-й ж/д бригад.</p><p>Ввод в эксплуатацию резко сократил автомобильное плечо подвоза до пристаней Ладоги.</p></div></div>`)[0];
+                popup_4aa87fad02ecd063b7d5a9746cd3c8e7.setContent(html_3f4f6c409959650fbca51d61edb9fffe);
             
         
 
-        poly_line_be3907b99f811df92e1198a8f92af23d.bindPopup(popup_5749cb0a4f31a797e8d1bb8c96b50f49)
+        poly_line_8e976332f9e41c5e350a6459eb3b9f61.bindPopup(popup_4aa87fad02ecd063b7d5a9746cd3c8e7)
         ;
 
         
     
     
-            poly_line_be3907b99f811df92e1198a8f92af23d.bindTooltip(
+            poly_line_8e976332f9e41c5e350a6459eb3b9f61.bindTooltip(
                 `<div>
-                     Ириновская ж/д ветка: Осиновец - Ленинград (55 км)
+                     Ж/Д ветка Войбокало — Кобона (зима 1941/42)
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_79c0110f7ff712f88710da94aa9cb711.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            var poly_line_3a98c9cc47f84652b87c9c1fd4b5b5cf = L.polyline(
+                [[60.1142, 31.0808], [60.0833, 31.05], [60.05, 31.0], [60.0167, 30.8333], [59.9833, 30.65], [59.95, 30.5], [59.9343, 30.3351]],
+                {"bubblingMouseEvents": true, "color": "#229954", "dashArray": "6 4", "dashOffset": null, "fill": false, "fillColor": "#229954", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 4}
+            ).addTo(feature_group_ef75e1b4714001c3ac2a044feb472426);
         
     
-            var feature_group_ff8843151f063973cb9f73d1f65bf91f = L.featureGroup(
+        var popup_55747e15e960740fa3321d179ae3d759 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_5bbc220dc106374d4a3bdc46222b6862 = $(`<div id="html_5bbc220dc106374d4a3bdc46222b6862" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#229954;margin:0 0 6px 0;'>Ириновская ж/д ветка</h3><hr><p>Соединяла порт Осиновец с Ленинградом через Борисову Гриву, Ваганово, Рахью и Ржевку.</p><p><b>Длина:</b> ~55 км. Перешита на широкую колею осенью 1941 г. для приёма поездов с Большой земли через Ладогу.</p></div></div>`)[0];
+                popup_55747e15e960740fa3321d179ae3d759.setContent(html_5bbc220dc106374d4a3bdc46222b6862);
+            
+        
+
+        poly_line_3a98c9cc47f84652b87c9c1fd4b5b5cf.bindPopup(popup_55747e15e960740fa3321d179ae3d759)
+        ;
+
+        
+    
+    
+            poly_line_3a98c9cc47f84652b87c9c1fd4b5b5cf.bindTooltip(
+                `<div>
+                     Ириновская ж/д ветка (Осиновец — Ленинград, ~55 км)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            feature_group_ef75e1b4714001c3ac2a044feb472426.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
+        
+    
+            var feature_group_ce0071d3281159d7a481628879bd51cc = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_60d9e1dbc91d5786b58583963f0c728b = L.polyline(
-                [[59.9343, 30.3351], [59.8, 30.6], [59.6, 31.5], [59.5, 32.5], [59.55, 33.5]],
-                {"bubblingMouseEvents": true, "color": "#8e44ad", "dashArray": "5 10", "dashOffset": null, "fill": false, "fillColor": "#8e44ad", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ff8843151f063973cb9f73d1f65bf91f);
+            var poly_line_434b1101bdfd77f94a9300031db444ec = L.polyline(
+                [[60.0181, 31.9714], [60.05, 31.8], [60.07, 31.6], [60.09, 31.4], [60.1, 31.25], [60.1142, 31.0808]],
+                {"bubblingMouseEvents": true, "color": "#e67e22", "dashArray": "3 7", "dashOffset": null, "fill": false, "fillColor": "#e67e22", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 4}
+            ).addTo(feature_group_ce0071d3281159d7a481628879bd51cc);
         
     
-        var popup_d016cf3378a34cd16f1e18f7681c3503 = L.popup({"maxWidth": 460});
+        var popup_b9e214ae60b9413c0a413fad4df74948 = L.popup({"maxWidth": 480});
 
         
             
-                var html_deca1411b664f89330d40f1d98250447 = $(`<div id="html_deca1411b664f89330d40f1d98250447" style="width: 100.0%; height: 100.0%;">     <div style="width:430px; font-family:Georgia, serif; max-height:500px; overflow-y:auto;">         <h2 style="color:#8e44ad; text-align:center;">ВОЗДУШНЫЙ МОСТ</h2>         <hr style="border:2px solid #8e44ad;">          <p>С первых дней блокады действовал воздушный мост.          Транспортные самолёты доставляли наиболее ценные грузы.</p>          <h3>Самолёты:</h3>         <ul>             <li><b>Ли-2 (ПС-84)</b> — основной транспортник, 1.5-2 т</li>             <li><b>ТБ-3</b> — тяжёлый бомбардировщик, до 4 т</li>             <li><b>Дуглас DC-3</b> (ленд-лиз)</li>             <li><b>У-2 (По-2)</b> — для срочных малых грузов и почты</li>         </ul>          <h3>Перевозки:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#e8daef;"><th>Период</th><th>Грузов в Ленинград</th><th>Рейсов/день</th></tr>             <tr><td>Сентябрь-ноябрь 1941</td><td>~6,186 т</td><td>30-50</td></tr>             <tr><td>Зима 1941-42</td><td>~4,325 т</td><td>15-40</td></tr>             <tr><td>1942 (всего)</td><td>~2,718 т</td><td>10-30</td></tr>         </table>          <h3>Эвакуировано воздухом:</h3>         <p><b>~50,000 человек</b></p>          <h3 style="color:#c0392b;">Потери:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px;">             <tr style="background:#f5b7b1;"><th>Показатель</th><th>Данные</th></tr>             <tr><td>Сбито/утеряно самолётов</td><td>~100+ транспортников</td></tr>             <tr><td>Потери лётного состава</td><td>сотни человек</td></tr>             <tr><td><b>% доставленных грузов</b></td><td><b>~92-95%</b></td></tr>         </table>     </div>     </div>`)[0];
-                popup_d016cf3378a34cd16f1e18f7681c3503.setContent(html_deca1411b664f89330d40f1d98250447);
+                var html_e5767aff174b45586f67f69d9b9e0aed = $(`<div id="html_e5767aff174b45586f67f69d9b9e0aed" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#e67e22;text-align:center;margin:0;">ПОДВОДНЫЙ     ТРУБОПРОВОД ГСМ</h2>     <hr style="border:1.5px solid #e67e22;margin:6px 0;">      <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr><td><b>Длина подводной части</b></td><td>~21,5 км         (всего ~29 км с береговыми участками)</td></tr>         <tr><td><b>Диаметр трубы</b></td><td>101 мм</td></tr>         <tr><td><b>Глубина залегания</b></td><td>до ~12,5 м</td></tr>         <tr><td><b>Постройка</b></td><td>5 мая – 16 июня 1942</td></tr>         <tr><td><b>Ввод в строй</b></td><td>18 июня 1942</td></tr>         <tr><td><b>Пропускная способность</b></td>             <td>до 300–350 т топлива в сутки</td></tr>     </table>      <p style="margin:8px 0 4px 0;">За время эксплуатации     (до зимы 1943 г.) перекачано порядка     <b>40 тыс. тонн</b> бензина, керосина и дизтоплива.</p>     <p style="font-size:12px;color:#555;">Немецкая сторона     о трубопроводе так и не узнала; технические потери     оставались минимальными.</p>     </div></div>`)[0];
+                popup_b9e214ae60b9413c0a413fad4df74948.setContent(html_e5767aff174b45586f67f69d9b9e0aed);
             
         
 
-        poly_line_60d9e1dbc91d5786b58583963f0c728b.bindPopup(popup_d016cf3378a34cd16f1e18f7681c3503)
+        poly_line_434b1101bdfd77f94a9300031db444ec.bindPopup(popup_b9e214ae60b9413c0a413fad4df74948)
         ;
 
         
     
     
-            poly_line_60d9e1dbc91d5786b58583963f0c728b.bindTooltip(
+            poly_line_434b1101bdfd77f94a9300031db444ec.bindTooltip(
                 `<div>
-                     Воздушный мост: авиаснабжение Ленинграда. Нажмите.
+                     Подводный трубопровод ГСМ (29 км). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_ff8843151f063973cb9f73d1f65bf91f.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            feature_group_ce0071d3281159d7a481628879bd51cc.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_6301f380b0a22f32166315236eb0559f = L.featureGroup(
+            var feature_group_bf83ce62d271a9a46a7267f56ac51034 = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_fead1c52f5786a31aa7f244d31d3b849 = L.polyline(
-                [[60.04, 31.28], [60.038, 31.15], [60.035, 31.0], [60.03, 30.85], [60.02, 30.65], [60.0158, 30.5222]],
-                {"bubblingMouseEvents": true, "color": "#e67e22", "dashArray": "3 8", "dashOffset": null, "fill": false, "fillColor": "#e67e22", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 4}
-            ).addTo(feature_group_6301f380b0a22f32166315236eb0559f);
+            var poly_line_20baa505d4fcab54f1371cb7fe6dbc5e = L.polyline(
+                [[60.0181, 31.9714], [60.07, 31.7], [60.11, 31.4], [60.13, 31.2], [60.1142, 31.0808]],
+                {"bubblingMouseEvents": true, "color": "#f1c40f", "dashArray": "2 6", "dashOffset": null, "fill": false, "fillColor": "#f1c40f", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.85, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_bf83ce62d271a9a46a7267f56ac51034);
         
     
-        var popup_86a90dfb2f3f56c5a4fc622a0e65127a = L.popup({"maxWidth": 440});
+        var popup_5fa6c3afe1dfc52a80138467dae9871b = L.popup({"maxWidth": 480});
 
         
             
-                var html_19b180e3a0791def92a056e9b6bae792 = $(`<div id="html_19b180e3a0791def92a056e9b6bae792" style="width: 100.0%; height: 100.0%;">     <div style="width:420px; font-family:Georgia, serif; max-height:500px; overflow-y:auto;">         <h2 style="color:#e67e22; text-align:center;">ТРУБОПРОВОД ПО ДНУ ЛАДОГИ</h2>         <hr style="border:2px solid #e67e22;">          <h3>Характеристики:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr><td><b>Длина подводной части</b></td><td>~29 км</td></tr>             <tr><td><b>Диаметр трубы</b></td><td>101 мм</td></tr>             <tr><td><b>Глубина залегания</b></td><td>до 12.5 м</td></tr>             <tr><td><b>Строительство</b></td><td>5 мая — 16 июня 1942</td></tr>             <tr><td><b>Начало эксплуатации</b></td><td>18 июня 1942</td></tr>             <tr><td><b>Пропускная способность</b></td><td>до 350 т/сутки</td></tr>         </table>          <h3>Перекачано за время работы:</h3>         <p><b>~40,000 тонн ГСМ</b> (бензин, керосин, дизтопливо)</p>          <h3 style="color:#c0392b;">Потери:</h3>         <p>Немцы о трубопроводе не знали. Потери ГСМ: <b>&lt;2%</b> (технические утечки).</p>     </div>     </div>`)[0];
-                popup_86a90dfb2f3f56c5a4fc622a0e65127a.setContent(html_19b180e3a0791def92a056e9b6bae792);
+                var html_ba6264e16c6fc75b33ac8bd4a8461cf0 = $(`<div id="html_ba6264e16c6fc75b33ac8bd4a8461cf0" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#b7950b;text-align:center;margin:0;">«КАБЕЛЬ ЖИЗНИ»</h2>     <p style="text-align:center;color:#555;margin:2px 0 8px 0;font-size:12px;">     Подводная линия от Волховской ГЭС к Ленинграду</p>     <hr style="border:1.5px solid #b7950b;margin:6px 0;">      <table border="1" cellpadding="4" style="border-collapse:collapse;         font-size:12px;width:100%;">         <tr><td><b>Источник тока</b></td>             <td>Волховская ГЭС (восстановлена 1942)</td></tr>         <tr><td><b>Длина подводного участка</b></td>             <td>~22,5 км по дну Ладоги</td></tr>         <tr><td><b>Напряжение</b></td><td>10 кВ</td></tr>         <tr><td><b>Проложен</b></td><td>август–сентябрь 1942</td></tr>         <tr><td><b>Включён</b></td><td>23 сентября 1942</td></tr>     </table>      <p style="margin:8px 0;">Кабель вернул Ленинграду промышленный     ток. Возобновили работу часть оборонных предприятий, был     запущен трамвай (15 апреля 1942 — пассажирский, частичный     режим) и подача света на оборонные объекты.</p>     </div></div>`)[0];
+                popup_5fa6c3afe1dfc52a80138467dae9871b.setContent(html_ba6264e16c6fc75b33ac8bd4a8461cf0);
             
         
 
-        poly_line_fead1c52f5786a31aa7f244d31d3b849.bindPopup(popup_86a90dfb2f3f56c5a4fc622a0e65127a)
+        poly_line_20baa505d4fcab54f1371cb7fe6dbc5e.bindPopup(popup_5fa6c3afe1dfc52a80138467dae9871b)
         ;
 
         
     
     
-            poly_line_fead1c52f5786a31aa7f244d31d3b849.bindTooltip(
+            poly_line_20baa505d4fcab54f1371cb7fe6dbc5e.bindTooltip(
                 `<div>
-                     Подводный трубопровод ГСМ по дну Ладоги (29 км). Нажмите.
+                     Электрокабель по дну Ладоги. Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_6301f380b0a22f32166315236eb0559f.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            feature_group_bf83ce62d271a9a46a7267f56ac51034.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_bd8c902d58fe431727fd33189a2a31c5 = L.featureGroup(
+            var feature_group_dccfba2dac340113ddffe96689393864 = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_bb99ea1f1b9887a55c914bae1be289e5 = L.polyline(
-                [[60.04, 31.2], [60.035, 31.0], [60.028, 30.8], [60.02, 30.6], [60.0158, 30.5222]],
-                {"bubblingMouseEvents": true, "color": "#f1c40f", "dashArray": "2 6", "dashOffset": null, "fill": false, "fillColor": "#f1c40f", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_bd8c902d58fe431727fd33189a2a31c5);
-        
-    
-        var popup_53a5865004e82047f6d042cc1a6e6b2a = L.popup({"maxWidth": 400});
-
-        
-            
-                var html_377e04af1e123e090e9d0ccb3d904291 = $(`<div id="html_377e04af1e123e090e9d0ccb3d904291" style="width: 100.0%; height: 100.0%;">     <div style="width:380px; font-family:Georgia, serif;">         <h2 style="color:#f1c40f; text-align:center;">КАБЕЛЬ ЖИЗНИ</h2>         <hr style="border:2px solid #f1c40f;">          <h3>Электрокабель по дну Ладожского озера</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr><td><b>Источник</b></td><td>Волховская ГЭС</td></tr>             <tr><td><b>Длина кабеля</b></td><td>~23 км (подводная часть)</td></tr>             <tr><td><b>Напряжение</b></td><td>10 кВ</td></tr>             <tr><td><b>Проложен</b></td><td>Сентябрь-октябрь 1942</td></tr>             <tr><td><b>Включён</b></td><td>23 сентября 1942</td></tr>             <tr><td><b>Мощность</b></td><td>до 18,000 кВт</td></tr>         </table>         <p>Кабель вернул Ленинграду электричество: запустили трамваи,          заводы частично возобновили работу.</p>     </div>     </div>`)[0];
-                popup_53a5865004e82047f6d042cc1a6e6b2a.setContent(html_377e04af1e123e090e9d0ccb3d904291);
-            
-        
-
-        poly_line_bb99ea1f1b9887a55c914bae1be289e5.bindPopup(popup_53a5865004e82047f6d042cc1a6e6b2a)
-        ;
-
-        
-    
-    
-            poly_line_bb99ea1f1b9887a55c914bae1be289e5.bindTooltip(
-                `<div>
-                     Электрокабель по дну Ладоги (23 км) от Волховской ГЭС. Нажмите.
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            feature_group_bd8c902d58fe431727fd33189a2a31c5.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
-        
-    
-            var feature_group_86d9f6eb790e01a51b633cbe1ba9109d = L.featureGroup(
-                {}
-            );
-        
-    
-            var poly_line_37e6c3fd3e2997f0af7b202eaec13300 = L.polyline(
-                [[59.9343, 30.3351], [59.91, 30.5], [59.9, 30.7], [59.91, 30.9], [59.944, 31.033], [59.95, 31.2], [59.96, 31.5], [59.926, 32.338]],
+            var poly_line_6ddb8428a5bb2cf7454c003a600d1146 = L.polyline(
+                [[59.9486, 31.0344], [59.93, 31.22], [59.91, 31.4], [59.9, 31.55], [59.91, 31.7], [59.93, 31.8], [59.93, 32.05], [59.9258, 32.3375]],
                 {"bubblingMouseEvents": true, "color": "#c0392b", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#c0392b", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.9, "smoothFactor": 1.0, "stroke": true, "weight": 6}
-            ).addTo(feature_group_86d9f6eb790e01a51b633cbe1ba9109d);
+            ).addTo(feature_group_dccfba2dac340113ddffe96689393864);
         
     
-        var popup_d6b4ad8d6469e03daaa0896bf146ca02 = L.popup({"maxWidth": 470});
+        var popup_89607b30ccecc0453fd39928d544d1d8 = L.popup({"maxWidth": 480});
 
         
             
-                var html_e72ce1d7f39fdac919f22664425476d0 = $(`<div id="html_e72ce1d7f39fdac919f22664425476d0" style="width: 100.0%; height: 100.0%;">     <div style="width:440px; font-family:Georgia, serif; max-height:550px; overflow-y:auto;">         <h2 style="color:#c0392b; text-align:center;">ДОРОГА ПОБЕДЫ</h2>         <h4 style="text-align:center;">Железнодорожная линия Шлиссельбург — Поляны</h4>         <hr style="border:2px solid #c0392b;">          <h3>Хронология:</h3>         <ul>             <li><b>18 января 1943</b> — прорыв блокады (операция «Искра»)</li>             <li><b>Строительство:</b> 18 января — 5 февраля 1943 (17 дней!)</li>             <li><b>Длина:</b> 33 км новой ж/д линии</li>             <li><b>Мост через Неву:</b> построен за 11 дней (~1,300 м)</li>             <li><b>Первый поезд:</b> 7 февраля 1943</li>         </ul>          <h3>Перевозки:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#fadbd8;"><th>Период</th><th>Грузов/день</th><th>Поездов/день</th></tr>             <tr><td>Февраль 1943</td><td>~1,500-2,000 т</td><td>3-4</td></tr>             <tr><td>Март-май 1943</td><td>~3,000-4,000 т</td><td>6-8</td></tr>             <tr><td>Лето-осень 1943</td><td>~5,000-6,000 т</td><td>15-20</td></tr>         </table>         <p><b>Всего за 1943 год:</b> ~4,440,000 тонн</p>          <h3 style="color:#c0392b;">Потери («Коридор смерти»):</h3>         <p>Линия проходила в 3-6 км от немецких позиций.</p>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px;">             <tr style="background:#f5b7b1;"><th>Показатель</th><th>Данные</th></tr>             <tr><td>Повреждено/уничтожено паровозов</td><td>~76</td></tr>             <tr><td>Повреждено вагонов</td><td>~200+</td></tr>             <tr><td>Погибло ж/д рабочих</td><td>~110 убитых + ~175 раненых</td></tr>             <tr><td><b>% доставки</b></td><td><b>~88-92%</b></td></tr>         </table>     </div>     </div>`)[0];
-                popup_d6b4ad8d6469e03daaa0896bf146ca02.setContent(html_e72ce1d7f39fdac919f22664425476d0);
+                var html_65c745864d35e939148b0516d05ed008 = $(`<div id="html_65c745864d35e939148b0516d05ed008" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h2 style="color:#c0392b;text-align:center;margin:0;">«ДОРОГА ПОБЕДЫ»</h2>     <p style="text-align:center;color:#555;margin:2px 0 8px 0;font-size:12px;">     Ж/Д Шлиссельбург — Поляны (33 км), 1943 г.</p>     <hr style="border:1.5px solid #c0392b;margin:6px 0;">      <h4 style="margin:6px 0;">Хронология:</h4>     <ul style="margin:4px 0;padding-left:18px;">         <li><b>18.01.1943:</b> прорыв блокады в районе Шлиссельбурга         (операция «Искра»)</li>         <li>Строительство ж/д: 22 января – 5 февраля 1943         (≈17 суток)</li>         <li>Свайно-ледовый мост через Неву (~1 300 м) —         собран за 12 дней</li>         <li><b>7 февраля 1943:</b> в Ленинград прибыл         первый поезд с Большой земли</li>     </ul>      <h4 style="margin:8px 0 4px 0;">Объёмы перевозок:</h4>     <p style="margin:4px 0;">К концу 1943 г. движение по     «коридору» в среднем — несколько составов в сутки;     основная масса грузов в Ленинград шла именно по этой     линии, потеснив роль Ладоги.</p>      <h4 style="margin:8px 0 4px 0;color:#c0392b;">«Коридор смерти»:</h4>     <p style="margin:4px 0;font-size:12px;">     Линия проходила всего в 4–5 км от немецких позиций.     Поезда подвергались артиллерийским обстрелам;     значительная часть рейсов выполнялась ночью с маневровой     тягой и методом «живого светофора». Потери — десятки     разбитых паровозов, сотни убитых и раненых     железнодорожников и охраны.</p>     </div></div>`)[0];
+                popup_89607b30ccecc0453fd39928d544d1d8.setContent(html_65c745864d35e939148b0516d05ed008);
             
         
 
-        poly_line_37e6c3fd3e2997f0af7b202eaec13300.bindPopup(popup_d6b4ad8d6469e03daaa0896bf146ca02)
+        poly_line_6ddb8428a5bb2cf7454c003a600d1146.bindPopup(popup_89607b30ccecc0453fd39928d544d1d8)
         ;
 
         
     
     
-            poly_line_37e6c3fd3e2997f0af7b202eaec13300.bindTooltip(
+            poly_line_6ddb8428a5bb2cf7454c003a600d1146.bindTooltip(
                 `<div>
-                     «Дорога Победы» / «Коридор смерти» — ж/д 1943 г. Нажмите.
+                     Дорога Победы / Коридор смерти (1943). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_86d9f6eb790e01a51b633cbe1ba9109d.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            feature_group_dccfba2dac340113ddffe96689393864.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
         
     
-            var feature_group_1333b6bb0b4bc56539689678ae21d3a0 = L.featureGroup(
+            var feature_group_a8d932d043daf226c0df69a9fd4acffa = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_5f660dea86b127ac50b9077966a4751f = L.polyline(
-                [[59.84, 29.85], [59.8, 30.0], [59.78, 30.2], [59.8, 30.45], [59.82, 30.7], [59.85, 30.85], [59.87, 30.95], [59.9, 31.0], [59.944, 31.033]],
-                {"bubblingMouseEvents": true, "color": "#333333", "dashArray": "10 5 2 5", "dashOffset": null, "fill": false, "fillColor": "#333333", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 4}
-            ).addTo(feature_group_1333b6bb0b4bc56539689678ae21d3a0);
+            var poly_line_118734b701d712d4e95194e7ba53afcc = L.polyline(
+                [[59.88, 29.9], [59.85, 30.0], [59.835, 30.14], [59.815, 30.25], [59.815, 30.35], [59.72, 30.43], [59.74, 30.6], [59.76, 30.8], [59.78, 30.92], [59.87, 31.01], [59.9486, 31.0344], [59.93, 31.18], [59.9, 31.35]],
+                {"bubblingMouseEvents": true, "color": "#2c2c2c", "dashArray": "12 5 3 5", "dashOffset": null, "fill": false, "fillColor": "#2c2c2c", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 4}
+            ).addTo(feature_group_a8d932d043daf226c0df69a9fd4acffa);
         
     
-        var popup_dc87cfb593d9b85c5a31a746703fbe31 = L.popup({"maxWidth": 370});
+        var popup_61d904fee02003ec3c0cc3f21b50a5b1 = L.popup({"maxWidth": 480});
 
         
             
-                var html_7aaa69bac3d6afee819276c0ff232285 = $(`<div id="html_7aaa69bac3d6afee819276c0ff232285" style="width: 100.0%; height: 100.0%;">     <div style="width:350px; font-family:Georgia, serif;">         <h3 style="color:#333;">Линия блокады (схематично)</h3>         <hr>         <p>Немецкие и финские войска замкнули кольцо          блокады 8 сентября 1941 года.</p>         <p><b>На юге и юго-востоке:</b> группа армий «Север» (вермахт)</p>         <p><b>На севере (Карельский перешеек):</b> финские войска</p>         <p>Кольцо было прорвано 18 января 1943 г. (операция «Искра»).</p>         <p>Полностью снята блокада 27 января 1944 г.</p>     </div>     </div>`)[0];
-                popup_dc87cfb593d9b85c5a31a746703fbe31.setContent(html_7aaa69bac3d6afee819276c0ff232285);
+                var html_b8b3d25aa17d853aac95d7b0fcede7ce = $(`<div id="html_b8b3d25aa17d853aac95d7b0fcede7ce" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h3 style="color:#333;margin:0 0 6px 0;">Линия блокады —     южный/западный сектор (вермахт)</h3><hr>     <p><b>Группа армий «Север»</b> (18-я и 16-я армии).</p>     <p>Немцы вышли к Финскому заливу у <b>Петергофа и Стрельны</b>     в сентябре 1941 г., отрезав Ораниенбаум с суши.</p>     <p>Основные опорные пункты линии:</p>     <ul style="margin:4px 0;padding-left:18px;">         <li><b>Урицк / Лигово</b> — ближайшая к городу точка         южной линии (~4 км от окраин)</li>         <li><b>Пулковские высоты</b> — стратегический рубеж;         советские войска удержали их в боях 1941 г.</li>         <li><b>Пушкин (Царское село)</b> — захвачен 17 сентября 1941</li>         <li><b>Колпино / Ижорский завод</b> — линия фронта проходила         буквально у заводских стен; рабочие воевали и работали</li>         <li><b>Шлиссельбург</b> — взят 8 сентября 1941 г.,         освобождён 18 января 1943 г.</li>     </ul>     <p>Кольцо прорвано 18 января 1943 г. (операция «Искра»).     Полностью снята блокада 27 января 1944 г.     (Ленинградско-Новгородская операция).</p>     <hr>     <p style="font-size:11px;color:#555;"><b>Водные щели в кольце</b>     (немцы их не контролировали):<br>     — западная: Невская губа / Кронштадт — советский;<br>     — восточная: Ладожское озеро — Дорога жизни.</p>     </div></div>`)[0];
+                popup_61d904fee02003ec3c0cc3f21b50a5b1.setContent(html_b8b3d25aa17d853aac95d7b0fcede7ce);
             
         
 
-        poly_line_5f660dea86b127ac50b9077966a4751f.bindPopup(popup_dc87cfb593d9b85c5a31a746703fbe31)
+        poly_line_118734b701d712d4e95194e7ba53afcc.bindPopup(popup_61d904fee02003ec3c0cc3f21b50a5b1)
         ;
 
         
     
     
-            poly_line_5f660dea86b127ac50b9077966a4751f.bindTooltip(
+            poly_line_118734b701d712d4e95194e7ba53afcc.bindTooltip(
                 `<div>
-                     Линия немецкой блокады (южный сектор)
+                     Линия блокады — южный/западный сектор (вермахт). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_96af1a896bbf0ce05dc4507564b59979 = L.polyline(
-                [[60.07, 30.05], [60.0, 30.1], [59.95, 30.0], [59.88, 29.9], [59.84, 29.85]],
-                {"bubblingMouseEvents": true, "color": "#666666", "dashArray": "10 5 2 5", "dashOffset": null, "fill": false, "fillColor": "#666666", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.5, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_1333b6bb0b4bc56539689678ae21d3a0);
+            var poly_line_7ca4b07cf44b6084188cc1f5cd08bec2 = L.polyline(
+                [[60.09, 29.97], [60.06, 30.05], [60.025, 30.136], [60.06, 30.25], [60.11, 30.4], [60.18, 30.6], [60.27, 30.75], [60.35, 30.9], [60.44, 31.0], [60.52, 31.05], [60.59, 31.07]],
+                {"bubblingMouseEvents": true, "color": "#555555", "dashArray": "12 5 3 5", "dashOffset": null, "fill": false, "fillColor": "#555555", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.65, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_a8d932d043daf226c0df69a9fd4acffa);
         
     
-            poly_line_96af1a896bbf0ce05dc4507564b59979.bindTooltip(
-                `<div>
-                     Линия блокады (северный сектор, финские позиции)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var circle_0c051f5860d1834e98d0dbeab708f5c3 = L.circle(
-                [59.9343, 30.3351],
-                {"bubblingMouseEvents": true, "color": "#e74c3c", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#e74c3c", "fillOpacity": 0.05, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 15000, "stroke": true, "weight": 3}
-            ).addTo(feature_group_1333b6bb0b4bc56539689678ae21d3a0);
-        
-    
-        var popup_de7abc5acd476768a84316e32bc28764 = L.popup({"maxWidth": "100%"});
+        var popup_4ff041b49b599c46226f4c96c3f3bc76 = L.popup({"maxWidth": 480});
 
         
             
-                var html_c86bd2e6b0f23699ed902045aa683ccd = $(`<div id="html_c86bd2e6b0f23699ed902045aa683ccd" style="width: 100.0%; height: 100.0%;">Зона артиллерийского обстрела Ленинграда</div>`)[0];
-                popup_de7abc5acd476768a84316e32bc28764.setContent(html_c86bd2e6b0f23699ed902045aa683ccd);
+                var html_5294b2fb2b9bfeff083d3297dc51ef08 = $(`<div id="html_5294b2fb2b9bfeff083d3297dc51ef08" style="width: 100.0%; height: 100.0%;"><div class="ll-popup">     <h3 style="color:#555;margin:0 0 6px 0;">Линия блокады —     северный сектор (финские войска)</h3><hr>     <p>Карельский перешеек занимали финские войска,     опираясь на линию старой советско-финской границы 1939 г.     (по р. Сестра и Вуокса).</p>     <p>К осени 1941 г. финны вышли на этот рубеж и в основном     остановили наступление. Активных попыток взять Ленинград     с севера не предпринималось.</p>     <p><b>Белоостров</b> (~60,025° с.ш.) — западная точка линии     у Финского залива. <b>Тайпале</b> (~60,59° с.ш.) —     восточная точка у Ладожского озера.</p>     <p>На восток от Тайпале начиналось Ладожское озеро —     незакрытое советское водное пространство,     по которому шла Дорога жизни.</p>     </div></div>`)[0];
+                popup_4ff041b49b599c46226f4c96c3f3bc76.setContent(html_5294b2fb2b9bfeff083d3297dc51ef08);
             
         
 
-        circle_0c051f5860d1834e98d0dbeab708f5c3.bindPopup(popup_de7abc5acd476768a84316e32bc28764)
+        poly_line_7ca4b07cf44b6084188cc1f5cd08bec2.bindPopup(popup_4ff041b49b599c46226f4c96c3f3bc76)
         ;
 
         
     
     
-            circle_0c051f5860d1834e98d0dbeab708f5c3.bindTooltip(
+            poly_line_7ca4b07cf44b6084188cc1f5cd08bec2.bindTooltip(
                 `<div>
-                     Зона обстрела города (радиус ~15 км)
+                     Линия блокады — северный сектор (финские войска). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_1333b6bb0b4bc56539689678ae21d3a0.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            var polygon_5a68e896ebdd51019f20ecc2727d8487 = L.polygon(
+                [[59.88, 29.9], [59.78, 29.87], [59.67, 29.82], [59.57, 29.05], [59.75, 28.85], [59.91, 29.2], [60.02, 29.55], [59.91, 29.76], [59.88, 29.9]],
+                {"bubblingMouseEvents": true, "color": "#6A0DAD", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#9B59B6", "fillOpacity": 0.12, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(feature_group_a8d932d043daf226c0df69a9fd4acffa);
         
     
-            var feature_group_f559db61ef9f3ee9f8a5d57f98c7410d = L.featureGroup(
+        var popup_fa4dd887db3cd6110466c25522ae5571 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_68b3136d0d4b72d577803ded160af9a5 = $(`<div id="html_68b3136d0d4b72d577803ded160af9a5" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#6A0DAD;margin:0 0 6px 0;'>Ораниенбаумский плацдарм («Малая земля»)</h3><hr><p>Советский анклав на южном берегу Финского залива, изолированный немцами в сентябре 1941 г.</p><p>Периметр: ~65 км вдоль берега, глубина до 25 км.</p><p>Снабжался через Кронштадт морским путём и по льду залива зимой. В 1943 г. на плацдарм скрытно перебросили 2-ю ударную армию, которая нанесла удар в январе 1944 г. в ходе Красносельско-Ропшинской операции — это привело к окончательному снятию блокады.</p></div></div>`)[0];
+                popup_fa4dd887db3cd6110466c25522ae5571.setContent(html_68b3136d0d4b72d577803ded160af9a5);
+            
+        
+
+        polygon_5a68e896ebdd51019f20ecc2727d8487.bindPopup(popup_fa4dd887db3cd6110466c25522ae5571)
+        ;
+
+        
+    
+    
+            polygon_5a68e896ebdd51019f20ecc2727d8487.bindTooltip(
+                `<div>
+                     Ораниенбаумский плацдарм. Нажмите.
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            feature_group_a8d932d043daf226c0df69a9fd4acffa.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
+        
+    
+            var feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_ae71448b6d0db210c68b815e2c574c71 = L.polyline(
-                [[60.02, 30.15], [60.01, 30.25], [60.005, 30.35], [59.995, 30.45], [59.98, 30.5], [59.965, 30.52], [59.945, 30.5], [59.92, 30.48], [59.9, 30.45], [59.88, 30.4], [59.87, 30.35], [59.865, 30.3], [59.86, 30.25], [59.865, 30.2], [59.875, 30.15], [59.89, 30.1], [59.91, 30.07], [59.935, 30.05], [59.96, 30.05], [59.98, 30.07], [60.0, 30.1], [60.02, 30.15]],
-                {"bubblingMouseEvents": true, "color": "#8B0000", "dashArray": "5 3", "dashOffset": null, "fill": false, "fillColor": "#8B0000", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.7, "smoothFactor": 1.0, "stroke": true, "weight": 5}
-            ).addTo(feature_group_f559db61ef9f3ee9f8a5d57f98c7410d);
+            var poly_line_9e72a56d49f89cfc5216fff3c24b80ee = L.polyline(
+                [[59.95, 30.06], [59.91, 30.2], [59.88, 30.28], [59.865, 30.32], [59.835, 30.38], [59.8, 30.42], [59.77, 30.5], [59.74, 30.61], [59.77, 30.7], [59.85, 30.65], [59.9, 30.57], [59.94, 30.52]],
+                {"bubblingMouseEvents": true, "color": "#8B0000", "dashArray": "5 3", "dashOffset": null, "fill": false, "fillColor": "#8B0000", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.75, "smoothFactor": 1.0, "stroke": true, "weight": 5}
+            ).addTo(feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e);
         
     
-        var popup_06c2b0f1a8f41b8989fe219323be56f1 = L.popup({"maxWidth": 420});
+        var popup_20e03972b9d18dc9f07c8ad0305fbde6 = L.popup({"maxWidth": 480});
 
         
             
-                var html_c2bf71f42e851f1ff93f61f041ebc4e2 = $(`<div id="html_c2bf71f42e851f1ff93f61f041ebc4e2" style="width: 100.0%; height: 100.0%;">     <div style="width:400px; font-family:Georgia, serif; max-height:500px; overflow-y:auto;">         <h2 style="color:#8B0000; text-align:center;">ОБОРОНИТЕЛЬНАЯ ЛИНИЯ ЛЕНИНГРАДА</h2>         <hr style="border:2px solid #8B0000;">          <h3>Система обороны города:</h3>         <p>Ленинград был превращён в мощный укреплённый район с несколькими          оборонительными обводами.</p>          <h3>Внутренний обвод (показан на карте):</h3>         <ul>             <li>Проходил по окраинам города</li>             <li>ДОТы, ДЗОТы, баррикады на улицах</li>             <li>Противотанковые рвы и надолбы</li>             <li>Минные поля</li>             <li>Огневые точки в зданиях</li>         </ul>          <h3>Состав оборонительных сооружений:</h3>         <table border="1" cellpadding="4" style="border-collapse:collapse; font-size:12px; width:100%;">             <tr style="background:#f0e0e0;"><th>Тип сооружения</th><th>Количество</th></tr>             <tr><td>ДОТы и ДЗОТы</td><td>~4,100</td></tr>             <tr><td>Баррикады</td><td>~35 км</td></tr>             <tr><td>Противотанковые рвы</td><td>~626 км</td></tr>             <tr><td>Лесные завалы</td><td>~635 км</td></tr>             <tr><td>Проволочные заграждения</td><td>~380 км</td></tr>             <tr><td>Огневые точки в зданиях</td><td>~17,000</td></tr>         </table>          <h3>Гарнизон:</h3>         <ul>             <li>Ленинградский фронт: ~400,000 бойцов</li>             <li>Балтийский флот: артподдержка с кораблей</li>             <li>Народное ополчение: ~160,000 добровольцев</li>             <li>МПВО (местная ПВО): ~270,000 человек</li>         </ul>          <p style="font-size:11px; color:#555;">Строительство укреплений велось жителями города,          в том числе женщинами и подростками.</p>     </div>     </div>`)[0];
-                popup_06c2b0f1a8f41b8989fe219323be56f1.setContent(html_c2bf71f42e851f1ff93f61f041ebc4e2);
+                var html_d7c379d15286bf506a992966d43525d6 = $(`<div id="html_d7c379d15286bf506a992966d43525d6" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#8B0000;margin:0 0 6px 0;'>Городской оборонительный обвод</h3><hr><p>Ближний рубеж по южным и юго-восточным окраинам города. Западный конец — берег Финского залива (у Лигово); восточный конец — р. Нева.</p><p>Ключевые узлы:</p><ul style='margin:4px 0;padding-left:18px;'><li><b>Кировский завод</b> — работал в сотнях метров от линии фронта (бронетехника, артиллерия)</li><li><b>Колпино</b> — Ижорский завод; рабочие сражались непосредственно с заводских стен</li><li><b>Пулково</b> — высоты удержаны СССР; потеря грозила артиллерийским контролем над городом</li></ul><p>ДОТы/ДЗОТы, баррикады, противотанковые рвы, огневые точки в зданиях заводов.</p></div></div>`)[0];
+                popup_20e03972b9d18dc9f07c8ad0305fbde6.setContent(html_d7c379d15286bf506a992966d43525d6);
             
         
 
-        poly_line_ae71448b6d0db210c68b815e2c574c71.bindPopup(popup_06c2b0f1a8f41b8989fe219323be56f1)
+        poly_line_9e72a56d49f89cfc5216fff3c24b80ee.bindPopup(popup_20e03972b9d18dc9f07c8ad0305fbde6)
         ;
 
         
     
     
-            poly_line_ae71448b6d0db210c68b815e2c574c71.bindTooltip(
+            poly_line_9e72a56d49f89cfc5216fff3c24b80ee.bindTooltip(
                 `<div>
-                     Внутренний оборонительный обвод Ленинграда. Нажмите для подробностей.
+                     Городской обвод (ближняя оборона). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_b10b0522e2c528d7beceda96ba5b4707 = L.polyline(
-                [[60.06, 30.0], [60.05, 30.15], [60.04, 30.3], [60.03, 30.45], [60.015, 30.55], [59.99, 30.62], [59.96, 30.65], [59.93, 30.63], [59.9, 30.6], [59.87, 30.55], [59.85, 30.5], [59.83, 30.45], [59.81, 30.35], [59.8, 30.25], [59.8, 30.15], [59.81, 30.05], [59.83, 29.95], [59.86, 29.9], [59.89, 29.88], [59.92, 29.88], [59.95, 29.9], [59.98, 29.93], [60.01, 29.95], [60.04, 29.97], [60.06, 30.0]],
-                {"bubblingMouseEvents": true, "color": "#A52A2A", "dashArray": "12 6", "dashOffset": null, "fill": false, "fillColor": "#A52A2A", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.5, "smoothFactor": 1.0, "stroke": true, "weight": 4}
-            ).addTo(feature_group_f559db61ef9f3ee9f8a5d57f98c7410d);
+            var poly_line_27d9f58d29105281d65fe1ac660cdd27 = L.polyline(
+                [[59.68, 29.45], [59.7, 29.65], [59.73, 29.8], [59.66, 29.95], [59.57, 30.13], [59.54, 30.5], [59.57, 30.8], [59.65, 31.0], [59.9486, 31.0344]],
+                {"bubblingMouseEvents": true, "color": "#A52A2A", "dashArray": "12 6", "dashOffset": null, "fill": false, "fillColor": "#A52A2A", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.65, "smoothFactor": 1.0, "stroke": true, "weight": 4}
+            ).addTo(feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e);
         
     
-            poly_line_b10b0522e2c528d7beceda96ba5b4707.bindTooltip(
-                `<div>
-                     Внешний оборонительный обвод Ленинграда
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var poly_line_3bcaceffc8071558938ff6fa02480c4d = L.polyline(
-                [[59.6, 29.0], [59.55, 29.5], [59.5, 30.0], [59.5, 30.5], [59.55, 31.0], [59.6, 31.5]],
-                {"bubblingMouseEvents": true, "color": "#CD5C5C", "dashArray": "15 10", "dashOffset": null, "fill": false, "fillColor": "#CD5C5C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.4, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_f559db61ef9f3ee9f8a5d57f98c7410d);
-        
-    
-        var popup_5b43254de9dc5900901f4e449a166259 = L.popup({"maxWidth": 370});
+        var popup_47a4ffd03b66609a706bb42e12b61ab9 = L.popup({"maxWidth": 480});
 
         
             
-                var html_85403fabc94280246283c09d6f5ae4a7 = $(`<div id="html_85403fabc94280246283c09d6f5ae4a7" style="width: 100.0%; height: 100.0%;">     <div style="width:350px; font-family:Georgia, serif;">         <h3 style="color:#8B0000;">Лужский оборонительный рубеж</h3>         <hr>         <p>Оборонительная линия по реке Луге, ~120 км к югу от Ленинграда.</p>         <p><b>Июль-август 1941:</b> задержал наступление вермахта на ~3-4 недели.</p>         <p>Строился силами населения — до 500,000 человек копали рвы и строили укрепления.</p>         <p>Хотя линия была прорвана, задержка дала время подготовить оборону непосредственно у города.</p>     </div>     </div>`)[0];
-                popup_5b43254de9dc5900901f4e449a166259.setContent(html_85403fabc94280246283c09d6f5ae4a7);
+                var html_74d816940f2c8feef814e49cf4ac8e46 = $(`<div id="html_74d816940f2c8feef814e49cf4ac8e46" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#A52A2A;margin:0 0 6px 0;'>Красногвардейский (Гатчинский) укреплённый район</h3><hr><p>Рубеж в 40–60 км южнее Ленинграда. Фланги упирались в водные преграды:</p><ul style='margin:4px 0;padding-left:18px;'><li><b>Западный конец</b> — берег Финского залива у р. Воронка/Копорье</li><li><b>Восточный конец</b> — р. Нева / Ладога у Шлиссельбурга</li></ul><p>Центральный узел — <b>Гатчина</b>. В сентябре 1941 г. немцы прорвали рубеж, но его оборона задержала наступление на несколько дней, давая время укрепить городской обвод.</p></div></div>`)[0];
+                popup_47a4ffd03b66609a706bb42e12b61ab9.setContent(html_74d816940f2c8feef814e49cf4ac8e46);
             
         
 
-        poly_line_3bcaceffc8071558938ff6fa02480c4d.bindPopup(popup_5b43254de9dc5900901f4e449a166259)
+        poly_line_27d9f58d29105281d65fe1ac660cdd27.bindPopup(popup_47a4ffd03b66609a706bb42e12b61ab9)
         ;
 
         
     
     
-            poly_line_3bcaceffc8071558938ff6fa02480c4d.bindTooltip(
+            poly_line_27d9f58d29105281d65fe1ac660cdd27.bindTooltip(
                 `<div>
-                     Лужский оборонительный рубеж (июль-август 1941)
+                     Красногвардейский УР (Гатчина, ~50 км). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_aba4f9bd0047273e60e324d3dd899946 = L.polyline(
-                [[59.72, 29.5], [59.7, 30.0], [59.7, 30.3], [59.72, 30.7], [59.75, 31.0]],
-                {"bubblingMouseEvents": true, "color": "#B22222", "dashArray": "8 4", "dashOffset": null, "fill": false, "fillColor": "#B22222", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.4, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_f559db61ef9f3ee9f8a5d57f98c7410d);
+            var poly_line_01ebf12c2181c941cef1ee2ab79f08c8 = L.polyline(
+                [[60.09, 29.97], [60.08, 30.15], [60.12, 30.35], [60.17, 30.55], [60.22, 30.75], [60.17, 30.92], [60.12, 31.08]],
+                {"bubblingMouseEvents": true, "color": "#8B0000", "dashArray": "8 4", "dashOffset": null, "fill": false, "fillColor": "#8B0000", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e);
         
     
-        var popup_2ce8162ef512c6bde486e1a7e30d75a7 = L.popup({"maxWidth": 340});
+        var popup_318b2a71189f4fa23f1108d464134355 = L.popup({"maxWidth": 480});
 
         
             
-                var html_b3a62be828396152fe08f03c39497e9b = $(`<div id="html_b3a62be828396152fe08f03c39497e9b" style="width: 100.0%; height: 100.0%;">     <div style="width:320px; font-family:Georgia, serif;">         <h3 style="color:#8B0000;">Красногвардейский укрепрайон</h3>         <hr>         <p>Промежуточная оборонительная линия между Лужским рубежом          и непосредственной обороной Ленинграда.</p>         <p>Включал Гатчинский, Красносельский и Колпинский узлы обороны.</p>     </div>     </div>`)[0];
-                popup_2ce8162ef512c6bde486e1a7e30d75a7.setContent(html_b3a62be828396152fe08f03c39497e9b);
+                var html_622152fd3f22e2e312dee45863168a9c = $(`<div id="html_622152fd3f22e2e312dee45863168a9c" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#8B0000;margin:0 0 6px 0;'>КаУР — Карельский укреплённый район</h3><hr><p>Система ДОТов и ДЗОТОВ, построенная в 1930-е гг. на Карельском перешейке. Прикрывала Ленинград от удара с севера.</p><p>В 1941 г. частично восстанавливалась и дополнялась. Финские войска остановились примерно на этой линии (по старой советско-финской границе 1939 г.) и активного штурма КаУРа не предпринимали.</p><p>Западный конец — Сестрорецк (Финский залив). Восточный конец — у берега Ладожского озера.</p></div></div>`)[0];
+                popup_318b2a71189f4fa23f1108d464134355.setContent(html_622152fd3f22e2e312dee45863168a9c);
             
         
 
-        poly_line_aba4f9bd0047273e60e324d3dd899946.bindPopup(popup_2ce8162ef512c6bde486e1a7e30d75a7)
+        poly_line_01ebf12c2181c941cef1ee2ab79f08c8.bindPopup(popup_318b2a71189f4fa23f1108d464134355)
         ;
 
         
     
     
-            poly_line_aba4f9bd0047273e60e324d3dd899946.bindTooltip(
+            poly_line_01ebf12c2181c941cef1ee2ab79f08c8.bindTooltip(
                 `<div>
-                     Красногвардейский укреплённый район
+                     КаУР — Карельский укреплённый район (сев. сторона). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            feature_group_f559db61ef9f3ee9f8a5d57f98c7410d.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            var poly_line_ff7576b1ac792235287a94e6896a4a37 = L.polyline(
+                [[59.05, 28.4], [58.95, 28.7], [58.85, 29.3], [58.74, 29.84], [58.7, 30.4], [58.65, 30.9], [58.6, 31.4], [58.53, 31.27]],
+                {"bubblingMouseEvents": true, "color": "#CD5C5C", "dashArray": "15 10", "dashOffset": null, "fill": false, "fillColor": "#CD5C5C", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.55, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e);
         
     
-            var feature_group_ab95934c063f0029a7c617cc49c594ed = L.featureGroup(
+        var popup_5d0d90bf409c74d689aac1c3c8d35789 = L.popup({"maxWidth": 480});
+
+        
+            
+                var html_01644c8ec8b9ce6b48218b2df9705997 = $(`<div id="html_01644c8ec8b9ce6b48218b2df9705997" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#8B0000;margin:0 0 6px 0;'>Лужский оборонительный рубеж</h3><hr><p>Создавался с 5 июля 1941 г. по р. Луге от Финского залива до озера Ильмень (~250 км).</p><p>В строительстве участвовало до полумиллиона жителей (преимущественно — ленинградцы).</p><p>Рубеж задержал наступление группы армий «Север» примерно на месяц, что дало время организовать оборону самого Ленинграда.</p></div></div>`)[0];
+                popup_5d0d90bf409c74d689aac1c3c8d35789.setContent(html_01644c8ec8b9ce6b48218b2df9705997);
+            
+        
+
+        poly_line_ff7576b1ac792235287a94e6896a4a37.bindPopup(popup_5d0d90bf409c74d689aac1c3c8d35789)
+        ;
+
+        
+    
+    
+            poly_line_ff7576b1ac792235287a94e6896a4a37.bindTooltip(
+                `<div>
+                     Лужский рубеж (июль–август 1941)
+                 </div>`,
+                {"sticky": true}
+            );
+        
+    
+            feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e.addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
+        
+    
+            var feature_group_37375a8d6a75401683b0c8f91f36f916 = L.featureGroup(
                 {}
             );
         
     
-            var poly_line_70bc287d099b983892ec14cf2ceaa0a0 = L.polyline(
-                [[59.55, 34.5], [59.6, 34.0], [59.7, 33.5], [59.8, 33.0], [59.9, 32.5], [59.95, 32.0], [60.0, 31.6], [60.04, 31.28]],
+            var poly_line_a0908c1d9eb78defe2668e2fc42000be = L.polyline(
+                [[59.6086, 33.8953], [59.7, 33.7], [59.85, 33.45], [59.95, 33.0], [60.05, 32.65], [60.1059, 32.3175]],
                 {"bubblingMouseEvents": true, "color": "#8B4513", "dashArray": "8 12", "dashOffset": null, "fill": false, "fillColor": "#8B4513", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
+            ).addTo(feature_group_37375a8d6a75401683b0c8f91f36f916);
         
     
-        var popup_74b0e60a6bf962e68f08d6ca404ebe46 = L.popup({"maxWidth": 400});
+        var popup_ed90b2bbe9d82ba1b2b203295b474ba2 = L.popup({"maxWidth": 480});
 
         
             
-                var html_9271e78570c78798a52aca265b223620 = $(`<div id="html_9271e78570c78798a52aca265b223620" style="width: 100.0%; height: 100.0%;">     <div style="width:380px; font-family:Georgia, serif;">         <h3 style="color:#8B4513;">Аварийная дорога через Заборье</h3>         <hr>         <p><b>Период:</b> 8 ноября — 9 декабря 1941 г.</p>         <p>После захвата Тихвина грузы доставлялись по временной          грунтовой дороге от ст. Заборье через леса и болота.</p>         <p><b>Длина:</b> ~320 км</p>         <p><b>Пропускная способность:</b> 200-400 т/день</p>         <p>Крайне тяжёлые условия: бездорожье, мороз, нехватка техники.</p>     </div>     </div>`)[0];
-                popup_74b0e60a6bf962e68f08d6ca404ebe46.setContent(html_9271e78570c78798a52aca265b223620);
+                var html_d81ff44d5f645b44a873421d6e89d7c3 = $(`<div id="html_d81ff44d5f645b44a873421d6e89d7c3" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#8B4513;margin:0 0 6px 0;'>Аварийная автодорога от ст. Заборье (ВАД-102)</h3><hr><p><b>Период:</b> 8 ноября – 9 декабря 1941 г.</p><p>После захвата Тихвина грузы шли по только что прорубленной грунтовой дороге через леса и болота от ст. Заборье через Карпино — Серебрянскую — Новую Ладогу (общая длина около 308 км).</p><p>Пропускная способность была крайне низкой; маршрут был выведен из эксплуатации сразу после освобождения Тихвина.</p></div></div>`)[0];
+                popup_ed90b2bbe9d82ba1b2b203295b474ba2.setContent(html_d81ff44d5f645b44a873421d6e89d7c3);
             
         
 
-        poly_line_70bc287d099b983892ec14cf2ceaa0a0.bindPopup(popup_74b0e60a6bf962e68f08d6ca404ebe46)
+        poly_line_a0908c1d9eb78defe2668e2fc42000be.bindPopup(popup_ed90b2bbe9d82ba1b2b203295b474ba2)
         ;
 
         
     
     
-            poly_line_70bc287d099b983892ec14cf2ceaa0a0.bindTooltip(
+            poly_line_a0908c1d9eb78defe2668e2fc42000be.bindTooltip(
                 `<div>
-                     Аварийная дорога через Заборье (ноябрь-декабрь 1941). Нажмите.
+                     Аварийная дорога ВАД-102 (через Заборье). Нажмите.
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_4f042277082544fb6d446e5a5c01caa5 = L.polyline(
-                [[59.9343, 30.3351], [59.95, 30.2], [59.97, 30.0], [59.98, 29.85], [59.996, 29.766]],
-                {"bubblingMouseEvents": true, "color": "#6A0DAD", "dashArray": "6 8", "dashOffset": null, "fill": false, "fillColor": "#6A0DAD", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
+            var poly_line_ff0c25895b313eee383de073c6346cde = L.polyline(
+                [[59.9343, 30.3351], [59.97, 30.15], [59.99, 29.95], [59.9966, 29.767], [59.9087, 29.7647]],
+                {"bubblingMouseEvents": true, "color": "#6A0DAD", "dashArray": "6 8", "dashOffset": null, "fill": false, "fillColor": "#6A0DAD", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.65, "smoothFactor": 1.0, "stroke": true, "weight": 3}
+            ).addTo(feature_group_37375a8d6a75401683b0c8f91f36f916);
         
     
-        var popup_528fb4d8dd2557e5c99f0fe878de98a8 = L.popup({"maxWidth": 400});
+        var popup_0afb62cf8f5fe05d2f5984e0c0b46583 = L.popup({"maxWidth": 480});
 
         
             
-                var html_213d557d0d7ce7436d755c27810069c9 = $(`<div id="html_213d557d0d7ce7436d755c27810069c9" style="width: 100.0%; height: 100.0%;">     <div style="width:380px; font-family:Georgia, serif;">         <h3 style="color:#6A0DAD;">Снабжение Ораниенбаумского плацдарма</h3>         <hr>         <p>Ораниенбаумский («Малая земля») плацдарм снабжался          морским путём из Ленинграда через Кронштадт.</p>         <p><b>Маршрут:</b> Ленинград - Кронштадт - Ораниенбаум</p>         <p><b>Средства:</b> катера, баржи, зимой — по льду Финского залива.</p>         <p>Плацдарм удерживался всю блокаду и стал одной из баз          для наступления в январе 1944 г.</p>     </div>     </div>`)[0];
-                popup_528fb4d8dd2557e5c99f0fe878de98a8.setContent(html_213d557d0d7ce7436d755c27810069c9);
+                var html_f869f57f610147a592bd636e71370338 = $(`<div id="html_f869f57f610147a592bd636e71370338" style="width: 100.0%; height: 100.0%;"><div class="ll-popup"><h3 style='color:#6A0DAD;margin:0 0 6px 0;'>Снабжение Ораниенбаумского плацдарма</h3><hr><p>Плацдарм («Малая земля») снабжался морским путём из Ленинграда через Кронштадт. Зимой — по льду Финского залива.</p><p>Сыграл ключевую роль в Красносельско-Ропшинской операции (январь 1944 г.).</p></div></div>`)[0];
+                popup_0afb62cf8f5fe05d2f5984e0c0b46583.setContent(html_f869f57f610147a592bd636e71370338);
             
         
 
-        poly_line_4f042277082544fb6d446e5a5c01caa5.bindPopup(popup_528fb4d8dd2557e5c99f0fe878de98a8)
+        poly_line_ff0c25895b313eee383de073c6346cde.bindPopup(popup_0afb62cf8f5fe05d2f5984e0c0b46583)
         ;
 
         
     
     
-            poly_line_4f042277082544fb6d446e5a5c01caa5.bindTooltip(
+            poly_line_ff0c25895b313eee383de073c6346cde.bindTooltip(
                 `<div>
-                     Морской путь Ленинград - Кронштадт
+                     Морской путь Ленинград — Кронштадт — Ораниенбаум
                  </div>`,
                 {"sticky": true}
             );
         
     
-            var poly_line_7d0d2ff05949eaa54860d3856382ee34 = L.polyline(
-                [[59.996, 29.766], [59.95, 29.76], [59.91, 29.76]],
-                {"bubblingMouseEvents": true, "color": "#6A0DAD", "dashArray": "6 8", "dashOffset": null, "fill": false, "fillColor": "#6A0DAD", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
-        
-    
-            poly_line_7d0d2ff05949eaa54860d3856382ee34.bindTooltip(
-                `<div>
-                     Морской путь Кронштадт - Ораниенбаум
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var poly_line_d22eb3659ffdab18463edcab5771edad = L.polyline(
-                [[59.2205, 39.8918], [59.13, 37.9]],
-                {"bubblingMouseEvents": true, "color": "#196F3D", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#196F3D", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.6, "smoothFactor": 1.0, "stroke": true, "weight": 4}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
-        
-    
-            poly_line_d22eb3659ffdab18463edcab5771edad.bindTooltip(
-                `<div>
-                     Ж/Д: Вологда - Череповец
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var poly_line_5b00320e71cbec181445eead584b5f5c = L.polyline(
-                [[60.1, 32.3], [60.08, 32.0], [60.06, 31.7], [60.05, 31.5], [60.04, 31.28]],
-                {"bubblingMouseEvents": true, "color": "#117A65", "dashArray": "4 6", "dashOffset": null, "fill": false, "fillColor": "#117A65", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.5, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
-        
-    
-            poly_line_5b00320e71cbec181445eead584b5f5c.bindTooltip(
-                `<div>
-                     Каботажный маршрут: Новая Ладога - Кобона
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var poly_line_45c4e008d025079bee6a9debe7ba8edf = L.polyline(
-                [[60.1, 32.3], [60.2, 31.8], [60.25, 31.3], [60.22, 30.8], [60.15, 30.6], [60.03, 30.57]],
-                {"bubblingMouseEvents": true, "color": "#117A65", "dashArray": "10 8", "dashOffset": null, "fill": false, "fillColor": "#117A65", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.5, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
-        
-    
-        var popup_4eea75c4130b4e5695becabf16a13142 = L.popup({"maxWidth": 360});
-
-        
-            
-                var html_66a5b0b05d874f6bd5bdd06c5553d79a = $(`<div id="html_66a5b0b05d874f6bd5bdd06c5553d79a" style="width: 100.0%; height: 100.0%;">     <div style="width:340px; font-family:Georgia, serif;">         <h3 style="color:#117A65;">Северный водный маршрут</h3>         <hr>         <p>Альтернативный маршрут навигации по Ладоге,          использовавшийся для обхода зон обстрела.</p>         <p>Конвои шли северным путём при угрозе атак со стороны          немецкой авиации на южном маршруте.</p>     </div>     </div>`)[0];
-                popup_4eea75c4130b4e5695becabf16a13142.setContent(html_66a5b0b05d874f6bd5bdd06c5553d79a);
-            
-        
-
-        poly_line_45c4e008d025079bee6a9debe7ba8edf.bindPopup(popup_4eea75c4130b4e5695becabf16a13142)
-        ;
-
-        
-    
-    
-            poly_line_45c4e008d025079bee6a9debe7ba8edf.bindTooltip(
-                `<div>
-                     Северный водный маршрут по Ладоге (альтернативный)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            var poly_line_c2a81767bbd737976ddc24c063698ab3 = L.polyline(
-                [[60.04, 31.28], [60.03, 31.35], [60.02, 31.45]],
-                {"bubblingMouseEvents": true, "color": "#2E86C1", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#2E86C1", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.5, "smoothFactor": 1.0, "stroke": true, "weight": 3}
-            ).addTo(feature_group_ab95934c063f0029a7c617cc49c594ed);
-        
-    
-            poly_line_c2a81767bbd737976ddc24c063698ab3.bindTooltip(
-                `<div>
-                     Дорога Кобона - Лаврово (перевалочная база)
-                 </div>`,
-                {"sticky": true}
-            );
-        
-    
-            feature_group_ab95934c063f0029a7c617cc49c594ed.addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
-        
-    
-            var layer_control_b4d44407b0b7f92f69c6ab8778a734be_layers = {
+            var layer_control_4392ad674faf17d186775750c5ea223e_layers = {
                 base_layers : {
-                    "cartodbpositron" : tile_layer_96199d666b08c7ca923b2c238d062761,
+                    "cartodbpositron" : tile_layer_8836f56bf01fad8978100ee998f4ec92,
                 },
                 overlays :  {
-                    "\u041a\u043b\u044e\u0447\u0435\u0432\u044b\u0435 \u0442\u043e\u0447\u043a\u0438" : feature_group_49a5e5c9cde2e14f29663b0b2bd212ee,
-                    "\u0414\u043e\u0440\u043e\u0433\u0430 \u0436\u0438\u0437\u043d\u0438 (\u043b\u0435\u0434\u043e\u0432\u0430\u044f \u0442\u0440\u0430\u0441\u0441\u0430)" : feature_group_144123e228727393088a62c3428df3d2,
-                    "\u0412\u043e\u0434\u043d\u0430\u044f \u043d\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u044f \u043f\u043e \u041b\u0430\u0434\u043e\u0433\u0435" : feature_group_f5cc94bf579412ea6c17a0cc5f804572,
-                    "\u0416/\u0414 \u043f\u0443\u0442\u0438 \u0441\u043d\u0430\u0431\u0436\u0435\u043d\u0438\u044f" : feature_group_79c0110f7ff712f88710da94aa9cb711,
-                    "\u0412\u043e\u0437\u0434\u0443\u0448\u043d\u044b\u0439 \u043c\u043e\u0441\u0442" : feature_group_ff8843151f063973cb9f73d1f65bf91f,
-                    "\u0422\u0440\u0443\u0431\u043e\u043f\u0440\u043e\u0432\u043e\u0434 \u043f\u043e \u0434\u043d\u0443 \u041b\u0430\u0434\u043e\u0433\u0438" : feature_group_6301f380b0a22f32166315236eb0559f,
-                    "\u042d\u043b\u0435\u043a\u0442\u0440\u043e\u043a\u0430\u0431\u0435\u043b\u044c \u043f\u043e \u0434\u043d\u0443 \u041b\u0430\u0434\u043e\u0433\u0438" : feature_group_bd8c902d58fe431727fd33189a2a31c5,
-                    "\u0414\u043e\u0440\u043e\u0433\u0430 \u041f\u043e\u0431\u0435\u0434\u044b (1943)" : feature_group_86d9f6eb790e01a51b633cbe1ba9109d,
-                    "\u041b\u0438\u043d\u0438\u044f \u043d\u0435\u043c\u0435\u0446\u043a\u043e\u0439 \u0431\u043b\u043e\u043a\u0430\u0434\u044b" : feature_group_1333b6bb0b4bc56539689678ae21d3a0,
-                    "\u041e\u0431\u043e\u0440\u043e\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u0430\u044f \u043b\u0438\u043d\u0438\u044f \u041b\u0435\u043d\u0438\u043d\u0433\u0440\u0430\u0434\u0430" : feature_group_f559db61ef9f3ee9f8a5d57f98c7410d,
-                    "\u0414\u043e\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u043f\u0443\u0442\u0438 \u0441\u043d\u0430\u0431\u0436\u0435\u043d\u0438\u044f" : feature_group_ab95934c063f0029a7c617cc49c594ed,
+                    "\u041a\u043b\u044e\u0447\u0435\u0432\u044b\u0435 \u0442\u043e\u0447\u043a\u0438" : feature_group_408bf709692ee214a2d540e5cdb7ae1a,
+                    "\u0414\u043e\u0440\u043e\u0433\u0430 \u0436\u0438\u0437\u043d\u0438 (\u043b\u0451\u0434)" : feature_group_797335fddb74c2fe0dded53cf541cc5a,
+                    "\u0412\u043e\u0434\u043d\u0430\u044f \u043d\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u044f" : feature_group_7124841ebd3d18ecb3db91f8095ecff2,
+                    "\u0416/\u0414 \u0441\u043d\u0430\u0431\u0436\u0435\u043d\u0438\u044f" : feature_group_ef75e1b4714001c3ac2a044feb472426,
+                    "\u0422\u0440\u0443\u0431\u043e\u043f\u0440\u043e\u0432\u043e\u0434 \u0413\u0421\u041c" : feature_group_ce0071d3281159d7a481628879bd51cc,
+                    "\u042d\u043b\u0435\u043a\u0442\u0440\u043e\u043a\u0430\u0431\u0435\u043b\u044c" : feature_group_bf83ce62d271a9a46a7267f56ac51034,
+                    "\u0414\u043e\u0440\u043e\u0433\u0430 \u041f\u043e\u0431\u0435\u0434\u044b (1943)" : feature_group_dccfba2dac340113ddffe96689393864,
+                    "\u041b\u0438\u043d\u0438\u044f \u0431\u043b\u043e\u043a\u0430\u0434\u044b" : feature_group_a8d932d043daf226c0df69a9fd4acffa,
+                    "\u041e\u0431\u043e\u0440\u043e\u043d\u0438\u0442\u0435\u043b\u044c\u043d\u044b\u0435 \u0440\u0443\u0431\u0435\u0436\u0438" : feature_group_c8cbb66b9b786e0cd663b0cc0912bd5e,
+                    "\u0414\u043e\u043f. \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u044b" : feature_group_37375a8d6a75401683b0c8f91f36f916,
                 },
             };
-            let layer_control_b4d44407b0b7f92f69c6ab8778a734be = L.control.layers(
-                layer_control_b4d44407b0b7f92f69c6ab8778a734be_layers.base_layers,
-                layer_control_b4d44407b0b7f92f69c6ab8778a734be_layers.overlays,
-                {"autoZIndex": true, "collapsed": false, "position": "topright"}
-            ).addTo(map_90540d7d6c3d3aac599bd9e7b700c18d);
+            let layer_control_4392ad674faf17d186775750c5ea223e = L.control.layers(
+                layer_control_4392ad674faf17d186775750c5ea223e_layers.base_layers,
+                layer_control_4392ad674faf17d186775750c5ea223e_layers.overlays,
+                {"autoZIndex": true, "collapsed": true, "position": "topright"}
+            ).addTo(map_d0cb13ff1faad1d12b73cf23992c16d6);
 
         
 </script>
